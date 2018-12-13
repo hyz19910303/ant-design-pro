@@ -35,4 +35,5 @@ export default {
   'menu.account.settings': '个人设置',
   'menu.account.trigger': '触发报错',
   'menu.account.logout': '退出登录',
+  'menu.list.userlist':'用户列表'
 };

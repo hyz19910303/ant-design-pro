@@ -104,6 +104,11 @@ export default [
             component: './List/BasicList',
           },
           {
+            path: '/list/userlist',
+            name: 'userlist',
+            component: './User/UserList',
+          },
+          {
             path: '/list/card-list',
             name: 'cardlist',
             component: './List/CardList',
