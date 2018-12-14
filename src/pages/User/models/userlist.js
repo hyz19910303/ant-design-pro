@@ -1,5 +1,5 @@
 import { queryRule, removeRule, addRule, updateRule } from '@/services/api';
-import { queryUserList } from '@/services/user';
+import { queryUserList,addUser } from '@/services/user';
 
 export default {
   namespace: 'userlist',
@@ -15,11 +15,17 @@ export default {
     *fetch({ payload }, { call, put }) {
       const response = yield call(queryUserList, payload);
       let result={};
+      
       if(response.success){
-        result.list=response.data.content;
+        let list=response.data.content;
+        list=list.map(item=>{
+          item['key']=item['id']||item['ID']
+          return item;
+        })
+        result.list=list;
         let number=response.data.number;
         let pagination={
-          current: number==0?1:number,
+          current: number+1,
           pageSize:response.data.size,
           total:response.data.totalElements
         };
@@ -33,12 +39,12 @@ export default {
       });
     },
     *add({ payload, callback }, { call, put }) {
-      const response = yield call(addRule, payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-      if (callback) callback();
+      const response = yield call(addUser, payload);
+      // yield put({
+      //   type: 'save',
+      //   payload: response,
+      // });
+      if (callback) callback(response);
     },
     *remove({ payload, callback }, { call, put }) {
       const response = yield call(removeRule, payload);

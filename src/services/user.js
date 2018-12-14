@@ -25,3 +25,12 @@ export async function queryUserList(params) {
   	}
   });
 }
+
+export async function addUser(params) {
+  return request('/api/security/user/add',{
+    method:'POST',
+    body:{
+      ...params
+    }
+  });
+}

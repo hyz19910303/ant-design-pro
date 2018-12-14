@@ -102,6 +102,20 @@ class LoginPage extends Component {
               ]}
               onPressEnter={() => this.loginForm.validateFields(this.handleSubmit)}
             />
+            <Captcha
+              name="captcha"
+              placeholder={formatMessage({ id: 'form.verification-code.placeholder' })}
+              countDown={120}
+              onGetCaptcha={this.onGetCaptcha}
+              getCaptchaButtonText={formatMessage({ id: 'form.get-captcha' })}
+              getCaptchaSecondText={formatMessage({ id: 'form.captcha.second' })}
+              rules={[
+                {
+                  required: true,
+                  message: formatMessage({ id: 'validation.verification-code.required' }),
+                },
+              ]}
+            />
           </Tab>
           <Tab key="mobile" tab={formatMessage({ id: 'app.login.tab-login-mobile' })}>
             {login.status === 'error' &&

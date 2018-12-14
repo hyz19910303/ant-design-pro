@@ -35,30 +35,51 @@ const getValue = obj =>
   Object.keys(obj)
     .map(key => obj[key])
     .join(',');
-const statusMap = ['default', 'processing', 'success', 'error'];
-const status = ['关闭', '运行中', '已上线', '异常'];
+const statusMap = ['0','1', '2', '3'];
+const status = ['未定义','正常', '锁定', '未知'];
 
 const CreateForm = Form.create()(props => {
   const { modalVisible, form, handleAdd, handleModalVisible } = props;
   const okHandle = () => {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      form.resetFields();
+      //form.resetFields();
       handleAdd(fieldsValue);
     });
   };
   return (
     <Modal
       destroyOnClose
-      title="新建规则"
+      title="新建用户"
+      width={640}
       visible={modalVisible}
       onOk={okHandle}
       onCancel={() => handleModalVisible()}
     >
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="描述">
-        {form.getFieldDecorator('desc', {
-          rules: [{ required: true, message: '请输入至少五个字符的规则描述！', min: 5 }],
-        })(<Input placeholder="请输入" />)}
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="用户名">
+        {form.getFieldDecorator('user_name', {
+          rules: [{ required: true, message: '请输入2-20个字符！', min: 2,max:20 }],
+        })(<Input placeholder="请输入用户名" />)}
+        </FormItem>
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="密码">
+        {form.getFieldDecorator('password', {
+          rules: [{ required: true, message: '密码长度在6-20位！', min: 6,max:20 }],
+        })(<Input type="password" placeholder="请输入密码" />)}
+      </FormItem>
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="姓名">
+        {form.getFieldDecorator('real_name', {
+          rules: [{ required: true, message: '姓名至少2个字符以上！', min: 2 }],
+        })(<Input placeholder="请输入真实姓名" />)}
+      </FormItem>
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="邮箱">
+        {form.getFieldDecorator('email', {
+          rules: [{ required: true, message: '请输入正确的邮箱地址！' }],
+        })(<Input type="email" placeholder="请输入邮箱" />)}
+      </FormItem>
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="手机号">
+        {form.getFieldDecorator('phono_number', {
+          rules: [{ required: true, message: '请输入正确的手机号码！' }],
+        })(<Input placeholder="请输入手机号" />)}
       </FormItem>
     </Modal>
   );
@@ -294,7 +315,7 @@ class UserList extends PureComponent {
       dataIndex: 'user_name',
     },
     {
-      title: '真实名称',
+      title: '姓名',
       dataIndex: 'real_name',
     },
     {
@@ -310,43 +331,20 @@ class UserList extends PureComponent {
       dataIndex: 'create_time',
     },
     {
-      title: '状态',
-      dataIndex: 'status',
-      filters: [
-        {
-          text: status[0],
-          value: 0,
-        },
-        {
-          text: status[1],
-          value: 1,
-        },
-        {
-          text: status[2],
-          value: 2,
-        },
-        {
-          text: status[3],
-          value: 3,
-        },
-      ],
+      title: '锁定状态',
+      dataIndex: 'lock_status',
       render(val) {
+        val=val?val:0;
         return <Badge status={statusMap[val]} text={status[val]} />;
       },
-    },
-    {
-      title: '上次调度时间',
-      dataIndex: 'updatedAt',
-      sorter: true,
-      render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '操作',
       render: (text, record) => (
         <Fragment>
-          <a onClick={() => this.handleUpdateModalVisible(true, record)}>配置</a>
+          <a onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</a>
           <Divider type="vertical" />
-          <a href="">订阅警报</a>
+          <a href="">删除</a>
         </Fragment>
       ),
     },
@@ -472,16 +470,24 @@ class UserList extends PureComponent {
   };
 
   handleAdd = fields => {
-    const { dispatch } = this.props;
+    const { dispatch,form } = this.props;
+
     dispatch({
       type: 'userlist/add',
       payload: {
-        desc: fields.desc,
+        ...fields
       },
+      callback:(response)=>{
+        //var that=this;
+        if(response.success){
+          form.resetFields();
+          message.success('添加成功');
+          this.handleModalVisible();
+        }else{
+          message.success(response.message);
+        }
+      }
     });
-
-    message.success('添加成功');
-    this.handleModalVisible();
   };
 
   handleUpdate = fields => {
@@ -640,7 +646,7 @@ class UserList extends PureComponent {
       handleUpdate: this.handleUpdate,
     };
     return (
-      <PageHeaderWrapper title="查询表格">
+      <PageHeaderWrapper title="用户列表">
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
