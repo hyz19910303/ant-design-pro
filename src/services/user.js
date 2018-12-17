@@ -34,3 +34,19 @@ export async function addUser(params) {
     }
   });
 }
+
+export async function deleteUser(params) {
+  const {record} =params
+  return request(`/api/security/user/delete/${record.id}`,{
+    method:'POST'
+  });
+}
+
+export async function updateUser(params) {
+  return request('/api/security/user/update/',{
+    method:'POST',
+    body:{
+      ...params
+    }
+  });
+}

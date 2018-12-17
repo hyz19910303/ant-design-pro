@@ -1,5 +1,5 @@
 import { queryRule, removeRule, addRule, updateRule } from '@/services/api';
-import { queryUserList,addUser } from '@/services/user';
+import { queryUserList,addUser,deleteUser,updateUser } from '@/services/user';
 
 export default {
   namespace: 'userlist',
@@ -18,10 +18,10 @@ export default {
       
       if(response.success){
         let list=response.data.content;
-        list=list.map(item=>{
-          item['key']=item['id']||item['ID']
-          return item;
-        })
+        // list=list.map(item=>{
+        //   item['key']=item['id']||item['ID']
+        //   return item;
+        // })
         result.list=list;
         let number=response.data.number;
         let pagination={
@@ -46,21 +46,25 @@ export default {
       // });
       if (callback) callback(response);
     },
+
+    *delete({payload,callback},{call,put}){
+
+      const response = yield call(deleteUser,payload);
+      if (callback) callback(response);
+    },
+
     *remove({ payload, callback }, { call, put }) {
-      const response = yield call(removeRule, payload);
+
+      const response = yield call(updateUser, payload);
       yield put({
         type: 'save',
         payload: response,
       });
-      if (callback) callback();
+      if (callback) callback(response);
     },
     *update({ payload, callback }, { call, put }) {
-      const response = yield call(updateRule, payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-      if (callback) callback();
+      const response = yield call(updateUser, payload);
+      if (callback) callback(response);
     },
   },
 
