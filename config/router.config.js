@@ -15,7 +15,7 @@ export default [
     path: '/',
     component: '../layouts/BasicLayout',
     Routes: ['src/pages/Authorized'],
-    authority: ['admin', 'user'],
+    //authority: ['admin', 'user'],
     routes: [
       // dashboard
       { path: '/', redirect: '/dashboard/analysis' },
@@ -87,6 +87,23 @@ export default [
           },
         ],
       },
+      {
+        path: '/system',
+        icon: 'home',
+        name: 'systemManager',
+        routes: [
+          {
+            path: '/system/role/rolelist',
+            name: 'rolelist',
+            component: './Role/RoleList',
+          },
+          {
+            path: '/system/user/userlist',
+            name: 'userlist',
+            component: './User/UserList',
+          },
+        ]
+      },
       // list
       {
         path: '/list',
@@ -102,11 +119,6 @@ export default [
             path: '/list/basic-list',
             name: 'basiclist',
             component: './List/BasicList',
-          },
-          {
-            path: '/list/userlist',
-            name: 'userlist',
-            component: './User/UserList',
           },
           {
             path: '/list/card-list',

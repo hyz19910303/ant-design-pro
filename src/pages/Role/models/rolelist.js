@@ -1,8 +1,8 @@
 // import { queryRule, removeRule, addRule, updateRule } from '@/services/api';
-import { queryUserList,addUser,deleteUser,updateUser } from '@/services/user';
+import { queryRoleList,addRole,deleteRole,updateRole } from '@/services/role';
 
 export default {
-  namespace: 'userlist',
+  namespace: 'rolelist',
 
   state: {
     data: {
@@ -13,7 +13,7 @@ export default {
 
   effects: {
     *fetch({ payload }, { call, put }) {
-      const response = yield call(queryUserList, payload);
+      const response = yield call(queryRoleList, payload);
       let result={};
       
       if(response.success){
@@ -39,7 +39,7 @@ export default {
       });
     },
     *add({ payload, callback }, { call, put }) {
-      const response = yield call(addUser, payload);
+      const response = yield call(addRole, payload);
       // yield put({
       //   type: 'save',
       //   payload: response,
@@ -49,13 +49,13 @@ export default {
 
     *delete({payload,callback},{call,put}){
 
-      const response = yield call(deleteUser,payload);
+      const response = yield call(deleteRole,payload);
       if (callback) callback(response);
     },
 
     *remove({ payload, callback }, { call, put }) {
 
-      const response = yield call(updateUser, payload);
+      const response = yield call(updateRole, payload);
       yield put({
         type: 'save',
         payload: response,
@@ -63,7 +63,7 @@ export default {
       if (callback) callback(response);
     },
     *update({ payload, callback }, { call, put }) {
-      const response = yield call(updateUser, payload);
+      const response = yield call(updateRole, payload);
       if (callback) callback(response);
     },
   },

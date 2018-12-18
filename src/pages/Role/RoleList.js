@@ -24,7 +24,7 @@ import {
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 
-import styles from './UserList.less';
+import styles from './RoleList.less';
 
 const FormItem = Form.Item;
 const { Step } = Steps;
@@ -102,12 +102,12 @@ const CreateForm = Form.create()(props => {
 });
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ userlist, loading }) => ({
-  userlist,
-  loading: loading.models.userlist,
+@connect(({ rolelist, loading }) => ({
+  rolelist,
+  loading: loading.models.rolelist,
 }))
 @Form.create()
-class UserList extends PureComponent {
+class RoleList extends PureComponent {
   state = {
     modalVisible: false,
     updateModalVisible: false,
@@ -120,20 +120,16 @@ class UserList extends PureComponent {
 
   columns = [
     {
-      title: '用户名',
-      dataIndex: 'user_name',
+      title: '角色名',
+      dataIndex: 'role_name',
     },
     {
-      title: '姓名',
-      dataIndex: 'real_name',
+      title: '角色代码',
+      dataIndex: 'role_code',
     },
     {
-      title: '邮箱',
-      dataIndex: 'email',
-    },
-    {
-      title: '电话',
-      dataIndex: 'phono_number',
+      title: '备注',
+      dataIndex: 'role_remark',
     },
     {
       title: '创建时间',
@@ -153,7 +149,7 @@ class UserList extends PureComponent {
         <Fragment>
           <Button icon="edit" size="small" onClick={() => this.handleUpdateModalVisible(true, record,index)}/>
           <Divider type="vertical" />
-          <Button icon="user-delete" size="small" onClick={() => this.handleDeleteRecord(record,index)}/>
+          <Button icon="delete" size="small" onClick={() => this.handleDeleteRecord(record,index)}/>
         </Fragment>
       ),
     },
@@ -162,7 +158,7 @@ class UserList extends PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'userlist/fetch',
+      type: 'rolelist/fetch',
     });
   }
 
@@ -186,7 +182,7 @@ class UserList extends PureComponent {
     }
 
     dispatch({
-      type: 'userlist/fetch',
+      type: 'rolelist/fetch',
       payload: params,
     });
   }
@@ -198,7 +194,7 @@ class UserList extends PureComponent {
       formValues: {},
     });
     dispatch({
-      type: 'userlist/fetch',
+      type: 'rolelist/fetch',
       payload: {},
     });
   }
@@ -218,7 +214,7 @@ class UserList extends PureComponent {
     switch (e.key) {
       case 'remove':
         dispatch({
-          type: 'userlist/remove',
+          type: 'rolelist/remove',
           payload: {
             key: selectedRows.map(row => row.key),
           },
@@ -258,7 +254,7 @@ class UserList extends PureComponent {
       });
 
       dispatch({
-        type: 'userlist/fetch',
+        type: 'rolelist/fetch',
         payload: values,
       });
     });
@@ -292,12 +288,12 @@ class UserList extends PureComponent {
   handleDelete=(record,index)=>{
     const { dispatch} = this.props;
     dispatch({
-      type:'userlist/delete',
+      type:'rolelist/delete',
       payload:{
         record
       },
       callback:(response)=>{
-        let listData=this.props.userlist;
+        let listData=this.props.rolelist;
         //删除页面上的数据
         listData.data.list.splice(index,1);
       }
@@ -307,7 +303,7 @@ class UserList extends PureComponent {
   handleAdd = (fields) => {
     const { dispatch,form } = this.props;
     dispatch({
-      type: 'userlist/add',
+      type: 'rolelist/add',
       payload: {
         ...fields
       },
@@ -316,7 +312,7 @@ class UserList extends PureComponent {
         if(response.success){
           form.resetFields();
           message.success('添加成功');
-          const data=this.props.userlist.data;;
+          const data=this.props.rolelist.data;;
           let datalist=data.list;
           const pageSize=data.pagination.pageSize;
           if(datalist.length<pageSize){
@@ -336,7 +332,7 @@ class UserList extends PureComponent {
     const { updateRowIndex}=this.state;
     
     dispatch({
-      type: 'userlist/update',
+      type: 'rolelist/update',
       payload: {
         ...fields
       },
@@ -344,7 +340,7 @@ class UserList extends PureComponent {
         if(response.success){
           //form.resetFields();
           message.success('修改成功');
-          const data=this.props.userlist.data;;
+          const data=this.props.rolelist.data;;
           let datalist=data.list;
           // const pageSize=data.pagination.pageSize;
           // if(datalist.length<pageSize){
@@ -482,7 +478,7 @@ class UserList extends PureComponent {
 
   render() {
     const {
-      userlist: { data },
+      rolelist: { data },
       loading,
     } = this.props;
     const { selectedRows, modalVisible, updateModalVisible, userFormValues } = this.state;
@@ -538,4 +534,4 @@ class UserList extends PureComponent {
   }
 }
 
-export default UserList;
+export default RoleList;
