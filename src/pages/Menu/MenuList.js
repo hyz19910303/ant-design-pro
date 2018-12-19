@@ -22,9 +22,10 @@ import {
   Radio,
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
+import StandardTreeTable from '@/components/StandardTreeTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 
-import styles from './RoleList.less';
+import styles from './MenuList.less';
 
 const FormItem = Form.Item;
 const { Step } = Steps;
@@ -39,10 +40,12 @@ const statusMap = ['default','success','error'];
 const status = ['未定义','正常', '删除'];
 
 const CreateForm = Form.create()(props => {
-  const { modalVisible, form, handleAdd,handleUpdate,handleModalVisible ,roleFormValues} = props;
-  //const { roleFormValues }=this.state
+  const { modalVisible, form, handleAdd,handleUpdate,handleModalVisible ,
+    roleFormValues,pid,radioVal,radioSeleted} = props;
+  
   let isUpdate=false;
-  if(JSON.stringify(roleFormValues)!=='{}'){
+  
+  if(JSON.stringify(roleFormValues)!=='{}' && !pid){
     isUpdate=true;
   }
   const okHandle = () => {
@@ -53,11 +56,17 @@ const CreateForm = Form.create()(props => {
         fieldsValue.id=roleFormValues.id;
         handleUpdate(fieldsValue);
       }else{
+        fieldsValue.pid=pid;
         handleAdd(fieldsValue);  
       }
     });
   };
-  const title=(isUpdate?"编辑":"新建")+"角色"
+  // let radioVal=1;
+  // const radioSeleted=(val)=>{
+  //   radioVal=val.value;
+  // }
+ 
+  const title=(isUpdate?"编辑":"新建")+"菜单"
   return (
     <Modal
       destroyOnClose
@@ -66,23 +75,34 @@ const CreateForm = Form.create()(props => {
       visible={modalVisible}
       onOk={okHandle}
       onCancel={() => handleModalVisible()}
-    >
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="角色名称">
-        {form.getFieldDecorator('role_name', {
-          rules: [{ required: true, message: '请输入2-20个字符！', min: 2,max:20 }],
-          initialValue: roleFormValues.role_name,
-        })(<Input placeholder="请输入角色名称" />)}
-        </FormItem>
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="角色代码">
-        {form.getFieldDecorator('role_code', {
-          rules: [{ required: true, message: '角色代码长度在3-20位！', min: 3,max:20 }],
-          initialValue: roleFormValues.role_code,
-        })(<Input type='number' placeholder="请输入角色代码" />)}
+    > 
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="菜单类型">
+        {form.getFieldDecorator('menu_type',{
+          valuePropName:'menu_type',
+          }
+        )
+        (<RadioGroup name='menu_type' value={roleFormValues.menu_type?roleFormValues.menu_type:radioVal} onChange={(v)=>radioSeleted(v)} >
+              <Radio value={'0'}>目录</Radio>
+              <Radio value={'1'}>菜单</Radio>
+              <Radio value={'2'}>按钮</Radio>
+        </RadioGroup>)}
       </FormItem>
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="备注">
-        {form.getFieldDecorator('role_remark', {
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="菜单名称">
+        {form.getFieldDecorator('menu_name', {
+          rules: [{ required: true, message: '请输入2-20个字符！', min: 2,max:20 }],
+          initialValue: roleFormValues.menu_name,
+        })(<Input placeholder="请输入菜单名称" />)}
+        </FormItem>
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="菜单代码">
+        {form.getFieldDecorator('menu_code', {
+          rules: [{ required: true, message: '菜单代码长度在3-20位！', min: 3,max:20 }],
+          initialValue: roleFormValues.menu_code,
+        })(<Input type='number' placeholder="请输入菜单代码" />)}
+      </FormItem>
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="描述">
+        {form.getFieldDecorator('description', {
           rules: [{ message: '请输入至少两个字符的描述！', min: 2 }],
-          initialValue: roleFormValues.role_remark,
+          initialValue: roleFormValues.description,
         })(<TextArea rows={4} placeholder="请输入至少两个字符" />)}
       </FormItem>
     </Modal>
@@ -90,12 +110,12 @@ const CreateForm = Form.create()(props => {
 });
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ rolelist, loading }) => ({
-  rolelist,
-  loading: loading.models.rolelist,
+@connect(({ menulist, loading }) => ({
+  menulist,
+  loading: loading.models.menulist,
 }))
 @Form.create()
-class RoleList extends PureComponent {
+class MenuList extends PureComponent {
   state = {
     modalVisible: false,
     updateModalVisible: false,
@@ -104,41 +124,56 @@ class RoleList extends PureComponent {
     formValues: {},
     roleFormValues: {},
     updateRowIndex:undefined,
+    radioVal:'0',
   };
 
-  columns = [
+  columns = [    
     {
-      title: '角色名',
-      dataIndex: 'role_name',
+      title: '菜单名称',
+      dataIndex: 'menu_name',
+      // width:'200px',
+      align:'left',
     },
     {
-      title: '角色代码',
-      dataIndex: 'role_code',
+      title: '菜单代码',
+      dataIndex: 'menu_code',
+      align:'center',
     },
     {
-      title: '备注',
-      dataIndex: 'role_remark',
+      title: 'URL',
+      dataIndex: 'menu_url',
+      align:'center',
     },
     {
-      title: '创建时间',
-      dataIndex: 'create_time',
+      title:'图标',
+      dataIndex:'menu_icon',
+      align:'center',
     },
     {
-      title: '状态',
-      dataIndex: 'flag',
-      render(val) {
-        val=val?val:0;
-        //return val==1?'正常':'删除'
-        return <Badge status={statusMap[val]} text={status[val]} />;
-      },
+      title: '菜单类型',
+      dataIndex: 'menu_type',
+      align:'center',
+    },
+    {
+      title:'排序号',
+      dataIndex:'order_no'
+    },
+    {
+      title:'描述',
+      dataIndex:'description',
+      // width:'200px',
+      align:'center',
     },
     {
       title: '操作',
+      align:'center',
       render: (text, record,index) => (
+
         <Fragment>
           <Button icon="edit" size="small" onClick={() => this.handleUpdateModalVisible(true, record,index)}/>
-          <Divider type="vertical" />
-          <Button icon="delete" size="small" onClick={() => this.handleDeleteRecord(record,index)}/>
+          {/*<Divider type="vertical" />*/}
+          <Button icon="plus" size="small" onClick={() => this.handleModalVisible(true,record)}/>
+          {record.children?null:<Button icon="delete" size="small" onClick={() => this.handleDeleteRecord(record,index)}/>}
         </Fragment>
       ),
     },
@@ -147,7 +182,14 @@ class RoleList extends PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'rolelist/fetch',
+      type: 'menulist/fetch',
+    });
+  }
+
+  radioSeleted=(radio)=>{
+    debugger
+    this.setState({
+      radioVal:radio.target.value,
     });
   }
 
@@ -171,7 +213,7 @@ class RoleList extends PureComponent {
     }
 
     dispatch({
-      type: 'rolelist/fetch',
+      type: 'menulist/fetch',
       payload: params,
     });
   }
@@ -183,7 +225,7 @@ class RoleList extends PureComponent {
       formValues: {},
     });
     dispatch({
-      type: 'rolelist/fetch',
+      type: 'menulist/fetch',
       payload: {},
     });
   }
@@ -203,7 +245,7 @@ class RoleList extends PureComponent {
     switch (e.key) {
       case 'remove':
         dispatch({
-          type: 'rolelist/remove',
+          type: 'menulist/remove',
           payload: {
             key: selectedRows.map(row => row.key),
           },
@@ -243,16 +285,19 @@ class RoleList extends PureComponent {
       });
 
       dispatch({
-        type: 'rolelist/fetch',
+        type: 'menulist/fetch',
         payload: values,
       });
     });
   }
 
-  handleModalVisible = flag => {
+  handleModalVisible = (flag,record) => {
+    let pid;
+    if(record) pid=record.id;
     this.setState({
       modalVisible: !!flag,
       roleFormValues: {},
+      pid:pid,
     });
   }
 
@@ -266,8 +311,8 @@ class RoleList extends PureComponent {
 
   handleDeleteRecord=(record,index)=>{
     Modal.confirm({
-      title: '删除角色',
-      content: '确定删除该角色吗？',
+      title: '删除菜单',
+      content: '确定删除该菜单吗？',
       okText: '确认',
       cancelText: '取消',
       onOk: () => this.handleDelete(record,index),
@@ -277,12 +322,13 @@ class RoleList extends PureComponent {
   handleDelete=(record,index)=>{
     const { dispatch} = this.props;
     dispatch({
-      type:'rolelist/delete',
+      type:'menulist/delete',
       payload:{
         record
       },
       callback:(response)=>{
-        let listData=this.props.rolelist;
+        debugger
+        let listData=this.props.menulist;
         //删除页面上的数据
         listData.data.list.splice(index,1);
       }
@@ -292,7 +338,7 @@ class RoleList extends PureComponent {
   handleAdd = (fields) => {
     const { dispatch,form } = this.props;
     dispatch({
-      type: 'rolelist/add',
+      type: 'menulist/add',
       payload: {
         ...fields
       },
@@ -301,7 +347,7 @@ class RoleList extends PureComponent {
         if(response.success){
           form.resetFields();
           message.success('添加成功');
-          const data=this.props.rolelist.data;;
+          const data=this.props.menulist.data;;
           let datalist=data.list;
           const pageSize=data.pagination.pageSize;
           if(datalist.length<pageSize){
@@ -321,7 +367,7 @@ class RoleList extends PureComponent {
     const { updateRowIndex}=this.state;
     
     dispatch({
-      type: 'rolelist/update',
+      type: 'menulist/update',
       payload: {
         ...fields
       },
@@ -329,7 +375,7 @@ class RoleList extends PureComponent {
         if(response.success){
           //form.resetFields();
           message.success('修改成功');
-          const data=this.props.rolelist.data;;
+          const data=this.props.menulist.data;;
           let datalist=data.list;
           // const pageSize=data.pagination.pageSize;
           // if(datalist.length<pageSize){
@@ -391,48 +437,26 @@ class RoleList extends PureComponent {
 
   render() {
     const {
-      rolelist: { data },
+      menulist: { data },
       loading,
     } = this.props;
-    const { selectedRows, modalVisible, updateModalVisible, roleFormValues } = this.state;
-    const menu = (
-      <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
-        <Menu.Item key="remove">删除</Menu.Item>
-        <Menu.Item key="approval">批量审批</Menu.Item>
-      </Menu>
-    );
-
+    const { selectedRows, modalVisible, updateModalVisible, roleFormValues,pid,radioVal} = this.state;
     const parentMethods = {
       handleAdd: this.handleAdd,
       handleUpdate:this.handleUpdate,
       handleModalVisible: this.handleModalVisible,
+      pid:pid,
+      radioSeleted:this.radioSeleted,
+      radioVal:radioVal,
+
     };
-    // const updateMethods = {
-    //   handleUpdateModalVisible: this.handleUpdateModalVisible,
-    //   handleUpdate: this.handleUpdate,
-    // };
     return (
-      <PageHeaderWrapper title="角色列表">
+      <PageHeaderWrapper title="菜单列表">
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
-            <div className={styles.tableListOperator}>
-              <Button icon="user-add" type="primary" onClick={() => this.handleModalVisible(true)}>
-                新建
-              </Button>
-              {selectedRows.length > 0 && (
-                <span>
-                  <Button>批量操作</Button>
-                  <Dropdown overlay={menu}>
-                    <Button>
-                      更多操作 <Icon type="down" />
-                    </Button>
-                  </Dropdown>
-                </span>
-              )}
-            </div>
-            <StandardTable
-              selectedRows={selectedRows}
+            <StandardTreeTable
+              indentSize={8}
               loading={loading}
               data={data}
               columns={this.columns}
@@ -441,10 +465,10 @@ class RoleList extends PureComponent {
             />
           </div>
         </Card>
-        <CreateForm {...parentMethods} modalVisible={modalVisible} roleFormValues={roleFormValues} />
+        <CreateForm {...parentMethods} modalVisible={modalVisible} roleFormValues={roleFormValues}  />
       </PageHeaderWrapper>
     );
   }
 }
 
-export default RoleList;
+export default MenuList;

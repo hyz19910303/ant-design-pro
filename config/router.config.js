@@ -102,6 +102,11 @@ export default [
             name: 'userlist',
             component: './User/UserList',
           },
+          {
+            path: '/system/menu/menulist',
+            name: 'menulist',
+            component: './Menu/MenuList',
+          },
         ]
       },
       // list

@@ -38,4 +38,5 @@ export default {
   'menu.systemManager.userlist':'用户列表',
   'menu.systemManager':'系统管理',
   'menu.systemManager.rolelist':'角色列表',
+  'menu.systemManager.menulist':'菜单列表',
 };

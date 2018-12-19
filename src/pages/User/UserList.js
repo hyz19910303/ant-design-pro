@@ -35,8 +35,8 @@ const getValue = obj =>
   Object.keys(obj)
     .map(key => obj[key])
     .join(',');
-const statusMap = ['0','1', '2', '3'];
-const status = ['未定义','正常', '锁定', '未知'];
+const statusMap = ['default','success','error'];
+const status = ['未定义','正常', '删除'];
 
 const CreateForm = Form.create()(props => {
   const { modalVisible, form, handleAdd,handleUpdate,handleModalVisible ,userFormValues} = props;
@@ -144,6 +144,7 @@ class UserList extends PureComponent {
       dataIndex: 'lock_status',
       render(val) {
         val=val?val:0;
+        //return val==1?'正常':'删除'
         return <Badge status={statusMap[val]} text={status[val]} />;
       },
     },
@@ -282,7 +283,7 @@ class UserList extends PureComponent {
   handleDeleteRecord=(record,index)=>{
     Modal.confirm({
       title: '删除用户',
-      content: '确定删除该该用户吗？',
+      content: '确定删除该用户吗？',
       okText: '确认',
       cancelText: '取消',
       onOk: () => this.handleDelete(record,index),
