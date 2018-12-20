@@ -16,13 +16,7 @@ export default {
       let result={};
       if(response.success){
         let list=[response.data];
-        result.list=list;
-        let pagination={
-          current: 1,
-          pageSize:10,
-          total:10
-        };
-        result.pagination=pagination;
+        result.list=list;        
       }else{
         result=response;
       }

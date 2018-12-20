@@ -349,7 +349,7 @@ class UserList extends PureComponent {
           let datalist=data.list;
           // const pageSize=data.pagination.pageSize;
           // if(datalist.length<pageSize){
-            datalist.splice(updateRowIndex,1);
+            //datalist.splice(updateRowIndex,1);
             datalist.splice(updateRowIndex,1,response.data);
           // }
           this.handleModalVisible();
@@ -361,6 +361,11 @@ class UserList extends PureComponent {
     })
     //this.handleUpdateModalVisible();
   };
+
+  handelAssignRoles=()=>{
+    const { selectedRows} =this.state;
+    console.log(selectedRows);
+  }
 
   renderSimpleForm() {
     const {
@@ -514,7 +519,7 @@ class UserList extends PureComponent {
               </Button>
               {selectedRows.length > 0 && (
                 <span>
-                  <Button>批量操作</Button>
+                  <Button onClick={()=>this.handelAssignRoles()}>分配角色</Button>
                   <Dropdown overlay={menu}>
                     <Button>
                       更多操作 <Icon type="down" />

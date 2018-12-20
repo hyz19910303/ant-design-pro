@@ -41,8 +41,8 @@ const status = ['未定义','正常', '删除'];
 
 const CreateForm = Form.create()(props => {
   const { modalVisible, form, handleAdd,handleUpdate,handleModalVisible ,
-    roleFormValues,pid,radioVal,radioSeleted} = props;
-  
+    roleFormValues,pid,radioSeleted} = props;
+  let { radioVal}=props;
   let isUpdate=false;
   
   if(JSON.stringify(roleFormValues)!=='{}' && !pid){
@@ -61,12 +61,16 @@ const CreateForm = Form.create()(props => {
       }
     });
   };
-  // let radioVal=1;
-  // const radioSeleted=(val)=>{
-  //   radioVal=val.value;
-  // }
- 
+  //等于默认的值
+  if(radioVal==='0'){
+    radioVal=roleFormValues.menu_type?roleFormValues.menu_type:radioVal;
+  } 
   const title=(isUpdate?"编辑":"新建")+"菜单"
+  const formLayout = {
+    labelCol: { span: 5 },
+    wrapperCol: { span: 16 },
+    hasFeedback:true,
+  };
   return (
     <Modal
       destroyOnClose
@@ -79,31 +83,45 @@ const CreateForm = Form.create()(props => {
       <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="菜单类型">
         {form.getFieldDecorator('menu_type',{
           valuePropName:'menu_type',
+          initialValue:radioVal,
           }
         )
-        (<RadioGroup name='menu_type' value={roleFormValues.menu_type?roleFormValues.menu_type:radioVal} onChange={(v)=>radioSeleted(v)} >
+        (<RadioGroup name='menu_type' value={radioVal} onChange={(v)=>radioSeleted(v)} >
               <Radio value={'0'}>目录</Radio>
               <Radio value={'1'}>菜单</Radio>
               <Radio value={'2'}>按钮</Radio>
         </RadioGroup>)}
       </FormItem>
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="菜单名称">
+      <FormItem {...formLayout} label="菜单名称">
         {form.getFieldDecorator('menu_name', {
           rules: [{ required: true, message: '请输入2-20个字符！', min: 2,max:20 }],
           initialValue: roleFormValues.menu_name,
-        })(<Input placeholder="请输入菜单名称" />)}
+        })(<Input  placeholder="请输入菜单名称" />)}
         </FormItem>
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="菜单代码">
+      <FormItem {...formLayout} label="菜单代码">
         {form.getFieldDecorator('menu_code', {
           rules: [{ required: true, message: '菜单代码长度在3-20位！', min: 3,max:20 }],
           initialValue: roleFormValues.menu_code,
-        })(<Input type='number' placeholder="请输入菜单代码" />)}
+        })(<Input  type='number' placeholder="请输入菜单代码" />)}
       </FormItem>
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="描述">
+      <FormItem {...formLayout}  label="URL">
+        {form.getFieldDecorator('menu_url', {
+          rules: [{ required: true, message: 'url不能为空！'}],
+          initialValue: roleFormValues.menu_url,
+        })(<Input placeholder="请输入url" />)}
+      </FormItem>
+      {radioVal!=='2'?
+      (<FormItem {...formLayout} label="菜单图标">
+        {form.getFieldDecorator('menu_icon', {
+          rules: [{ message: '请输入至少两个字符的描述！', min: 2 }],
+          initialValue: roleFormValues.menu_icon,
+        })(<Input  placeholder="请参考antd的icon" />)}
+      </FormItem>):null}
+      <FormItem {...formLayout} label="描述">
         {form.getFieldDecorator('description', {
           rules: [{ message: '请输入至少两个字符的描述！', min: 2 }],
           initialValue: roleFormValues.description,
-        })(<TextArea rows={4} placeholder="请输入至少两个字符" />)}
+        })(<TextArea rows={2} placeholder="请输入至少两个字符" />)}
       </FormItem>
     </Modal>
   );
@@ -187,7 +205,6 @@ class MenuList extends PureComponent {
   }
 
   radioSeleted=(radio)=>{
-    debugger
     this.setState({
       radioVal:radio.target.value,
     });
@@ -318,6 +335,24 @@ class MenuList extends PureComponent {
       onOk: () => this.handleDelete(record,index),
     });
   }
+  /**
+  *
+  *
+  */
+  queryParentNode=(list,pid)=>{    
+    let parent;
+    for(var i=0;i<list.length;i++){
+      const item=list[i];
+      if(item.id===pid){
+        return item;
+      }else if(item.children && item.children.length>0){
+       parent= this.queryParentNode(item.children,pid);
+       if(parent){
+          return parent;
+       }
+      }
+    }
+  }
 
   handleDelete=(record,index)=>{
     const { dispatch} = this.props;
@@ -327,10 +362,21 @@ class MenuList extends PureComponent {
         record
       },
       callback:(response)=>{
-        debugger
-        let listData=this.props.menulist;
-        //删除页面上的数据
-        listData.data.list.splice(index,1);
+        if(response.success){
+          let listData=this.props.menulist;
+          //删除页面上的数据
+          let parentNode=this.queryParentNode(listData.data.list,record.pid);
+          for(var i=0;i<parentNode.children.length;i++){
+            if(parentNode.children[i].id=record.id){
+              parentNode.children.splice(i,1);
+              return;
+            }
+          }
+          message.success('删除成功');
+        }else{
+          message.error(response.message);
+        }
+        
       }
     });
   }
@@ -347,14 +393,16 @@ class MenuList extends PureComponent {
         if(response.success){
           form.resetFields();
           message.success('添加成功');
+          this.handleModalVisible();
           const data=this.props.menulist.data;;
           let datalist=data.list;
-          const pageSize=data.pagination.pageSize;
-          if(datalist.length<pageSize){
-            //添加到列表中
-            datalist.push(response.data);
+          let record=response.data;
+          let parentNode=this.queryParentNode(datalist,record.pid);
+          if(parentNode.children){
+            parentNode.children.push(record);
+          }else{
+            parentNode.children=[record]
           }
-          this.handleModalVisible();
         }else{
           message.error(response.message);
         }
@@ -375,14 +423,19 @@ class MenuList extends PureComponent {
         if(response.success){
           //form.resetFields();
           message.success('修改成功');
+          this.handleModalVisible();
           const data=this.props.menulist.data;;
           let datalist=data.list;
-          // const pageSize=data.pagination.pageSize;
-          // if(datalist.length<pageSize){
-            datalist.splice(updateRowIndex,1);
-            datalist.splice(updateRowIndex,1,response.data);
-          // }
-          this.handleModalVisible();
+          let record=response.data;
+          let parentNode=this.queryParentNode(datalist,record.pid);
+          for(var i=0;i<parentNode.children.length;i++){
+            if(parentNode.children[i].id=record.id){
+              //parentNode.children.splice(i,1);
+              parentNode.children.splice(i,1,record);
+              
+              return;
+            }
+          }
         }else{
           message.error(response.message);
         }

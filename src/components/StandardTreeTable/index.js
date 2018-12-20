@@ -54,13 +54,12 @@ class StandardTreeTable extends PureComponent {
       showQuickJumper: true,
       ...pagination,
     };
-
     return (
       <div className={styles.standardTable}>
         <Table
           rowKey={rowKey || 'id'}
           dataSource={list}
-          pagination={paginationProps}
+          pagination={false}
           onChange={this.handleTableChange}
           {...rest}
         />

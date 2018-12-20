@@ -333,7 +333,7 @@ class RoleList extends PureComponent {
           let datalist=data.list;
           // const pageSize=data.pagination.pageSize;
           // if(datalist.length<pageSize){
-            datalist.splice(updateRowIndex,1);
+            //datalist.splice(updateRowIndex,1);
             datalist.splice(updateRowIndex,1,response.data);
           // }
           this.handleModalVisible();
