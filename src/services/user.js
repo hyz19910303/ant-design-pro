@@ -26,6 +26,8 @@ export async function queryUserList(params) {
   });
 }
 
+
+
 export async function addUser(params) {
   return request('/api/security/user/add',{
     method:'POST',
@@ -48,5 +50,23 @@ export async function updateUser(params) {
     body:{
       ...params
     }
+  });
+}
+//查看用户角色分配情况
+export async function queryUserRolesDetail(params) {
+  const { selectedRows} =params;
+  let userids=[];
+  selectedRows.map(item=>{
+    userids.push(item.id);
+  });
+  return request(`/api/security/user/assignRoles?ids=${userids.join(',')}`,{
+    method:'POST',
+  });
+}
+//分配角色
+export async function allignRoles(params) {
+  const {userids,roleids} =params;
+  return request(`/api/security/userRefrole/assignRole/?userids=${userids.join(',')}&roleids=${roleids.join(',')}`,{
+    method:'POST',
   });
 }

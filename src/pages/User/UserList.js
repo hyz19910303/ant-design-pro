@@ -105,15 +105,15 @@ const CreateForm = Form.create()(props => {
 
 
 const AssignRoleForm = Form.create()(props => {
-  const { assignModalVisible, form,handleAssignRoleModalVisible,roleList,confirmLoading} = props;
+  const { handelAssignRoles,assignModalVisible, form,handleAssignRoleModalVisible,roleList,confirmLoading,assignRoles} = props;
   const okHandle = () => {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      form.resetFields();
-      //TODO
+      //form.resetFields();
+      handelAssignRoles(fieldsValue);
     });
   };
-  
+  //debugger
   return (
     <Modal
       destroyOnClose
@@ -125,9 +125,9 @@ const AssignRoleForm = Form.create()(props => {
       onCancel={() => handleAssignRoleModalVisible()}
     >
        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="已分配的角色">
-        {form.getFieldDecorator('phono_number', {
+        {form.getFieldDecorator('id', {
           rules: [{ required: true, message: '请选择要分配的角色！' }],
-          //initialValue:'role_name',
+          initialValue:assignRoles,
         })(<Select
               mode="multiple"
               style={{ width: '100%' }}
@@ -159,8 +159,9 @@ class UserList extends PureComponent {
     userFormValues: {},
     updateRowIndex:undefined,
     assignModalVisible:false,
-    roleList:[],
-    confirmLoading:false,
+    roleList:[],//角色列表
+    confirmLoading:false,//弹出框加载
+    assignRoles:[],//已分配角色列表
   };
 
   columns = [
@@ -364,18 +365,14 @@ class UserList extends PureComponent {
 
   handleAdd = (fields) => {
     const { dispatch,form } = this.props;
-    this.setState({
-      confirmLoading:true
-    });
+    this.changeConfirmLoadState(true);    
     dispatch({
       type: 'userlist/add',
       payload: {
         ...fields
       },
       callback:(response)=>{
-        this.setState({
-          confirmLoading:false
-        });
+        this.changeConfirmLoadState();        
         if(response.success){
           form.resetFields();
           message.success('添加成功');
@@ -394,21 +391,25 @@ class UserList extends PureComponent {
     });
   }
 
+  changeConfirmLoadState=flag=>{
+    this.setState(
+      {
+          confirmLoading:!!flag
+      }
+    );
+  }
+
   handleUpdate = (fields) => {
     const { dispatch } = this.props;
     const { updateRowIndex}=this.state;
-    this.setState({
-      confirmLoading:true
-    });
+    this.changeConfirmLoadState(true);     
     dispatch({
       type: 'userlist/update',
       payload: {
         ...fields
       },
       callback:(response)=>{
-        this.setState({
-          confirmLoading:false
-        });
+        this.changeConfirmLoadState();
         if(response.success){
           message.success('修改成功');
           const data=this.props.userlist.data;;
@@ -425,6 +426,7 @@ class UserList extends PureComponent {
   };
 
   handleAssignRoleModalVisible=(flag)=>{
+    const { selectedRows } = this.state;
     if(flag){
       //model显示 请求后台数据
       const { dispatch } = this.props;
@@ -432,12 +434,17 @@ class UserList extends PureComponent {
         {
           type: 'userlist/useroles',
           payload: {
+            selectedRows:selectedRows
         },
         callback:(response)=>{
           if(response.success){
-            const roles=response.data;
+            const data=response.data;
+            const roles=data.AllRoles;
+            const assignRoles=data.AssignRoles;
+
             this.setState({
               roleList:roles,
+              assignRoles:assignRoles,
               assignModalVisible: !!flag,
             });
           }else{
@@ -453,9 +460,35 @@ class UserList extends PureComponent {
     }
   }
 
-  handelAssignRoles=(flag)=>{
+  handelAssignRoles=(fieldsValue)=>{
     const { selectedRows} =this.state;
-    console.log(selectedRows);
+    let userids=[];
+    selectedRows.map(item=>{
+      userids.push(item.id);
+    });
+    const { dispatch } = this.props;
+    this.changeConfirmLoadState(true); 
+    dispatch({
+        type: 'userlist/assignRoles',
+        payload: {
+          userids:userids,
+          roleids:fieldsValue.id
+        },
+        callback:(response)=>{
+          this.changeConfirmLoadState(); 
+          if(response.success){
+            message.success('分配成功');
+            this.setState({
+              roleList:[],
+              assignRoles:[],
+              assignModalVisible: false,
+            });
+          }else{
+            message.error(response.message);
+            
+          }
+        }
+      });
     
   }
 
@@ -584,7 +617,7 @@ class UserList extends PureComponent {
       loading,
     } = this.props;
     const { selectedRows, modalVisible, updateModalVisible, 
-      userFormValues,assignModalVisible,roleList,confirmLoading} = this.state;
+      userFormValues,assignModalVisible,roleList,confirmLoading,assignRoles} = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
         <Menu.Item key="remove">删除</Menu.Item>
@@ -600,11 +633,13 @@ class UserList extends PureComponent {
     };
     const assignRoleModelParentMethods={
       handleAssignRoleModalVisible:this.handleAssignRoleModalVisible,
+      handelAssignRoles:this.handelAssignRoles,
     }
     const assignRoleModelParentStates={
       roleList:roleList,
       assignModalVisible:assignModalVisible,
       confirmLoading:confirmLoading,
+      assignRoles:assignRoles,
     }
     // const updateMethods = {
     //   handleUpdateModalVisible: this.handleUpdateModalVisible,

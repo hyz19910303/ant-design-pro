@@ -1,5 +1,4 @@
-import { queryUserList,addUser,deleteUser,updateUser } from '@/services/user';
-import { queryRoleList } from '@/services/role';
+import { queryUserList,addUser,deleteUser,updateUser,queryUserRolesDetail,allignRoles } from '@/services/user';
 export default {
   namespace: 'userlist',
 
@@ -66,7 +65,11 @@ export default {
       if (callback) callback(response);
     },
     *useroles({ payload, callback }, { call, put }){
-      const response = yield call(queryRoleList, payload);
+      const response = yield call(queryUserRolesDetail, payload);
+      if (callback) callback(response);
+    },
+    *assignRoles({ payload, callback }, { call, put }){
+      const response = yield call(allignRoles, payload);
       if (callback) callback(response);
     }
   },
