@@ -3,18 +3,20 @@ import request from '@/utils/request';
 
 
 export async function queryRoleList(params) {
+  return request('/api/security/role/list',{
+  	method:'POST',
+  });
+}
+
+export async function queryRolePageList(params) {
   let pageSize=10;
   let pageNum=0;
   if(params){
-	pageSize=params['pageSize'];
-	pageNum=params['pageNum'];
+    pageSize=params['pageSize'];
+    pageNum=params['pageNum'];
   }
-  return request(`/api/security/role/list?${stringify(params)}`,{
-  	method:'POST',
-  	body:{
-  		pageSize,
-  		pageNum
-  	}
+  return request(`/api/security/role/page/list?${stringify(params)}`,{
+    method:'POST',
   });
 }
 

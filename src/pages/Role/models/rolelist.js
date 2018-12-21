@@ -1,5 +1,5 @@
 // import { queryRule, removeRule, addRule, updateRule } from '@/services/api';
-import { queryRoleList,addRole,deleteRole,updateRole } from '@/services/role';
+import { queryRolePageList,addRole,deleteRole,updateRole } from '@/services/role';
 
 export default {
   namespace: 'rolelist',
@@ -13,7 +13,7 @@ export default {
 
   effects: {
     *fetch({ payload }, { call, put }) {
-      const response = yield call(queryRoleList, payload);
+      const response = yield call(queryRolePageList, payload);
       let result={};
       
       if(response.success){

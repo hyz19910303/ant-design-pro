@@ -1,6 +1,5 @@
-// import { queryRule, removeRule, addRule, updateRule } from '@/services/api';
 import { queryUserList,addUser,deleteUser,updateUser } from '@/services/user';
-
+import { queryRoleList } from '@/services/role';
 export default {
   namespace: 'userlist',
 
@@ -66,6 +65,10 @@ export default {
       const response = yield call(updateUser, payload);
       if (callback) callback(response);
     },
+    *useroles({ payload, callback }, { call, put }){
+      const response = yield call(queryRoleList, payload);
+      if (callback) callback(response);
+    }
   },
 
   reducers: {

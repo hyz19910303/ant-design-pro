@@ -39,7 +39,8 @@ const statusMap = ['default','success','error'];
 const status = ['未定义','正常', '删除'];
 
 const CreateForm = Form.create()(props => {
-  const { modalVisible, form, handleAdd,handleUpdate,handleModalVisible ,userFormValues} = props;
+  const { modalVisible, form, handleAdd,handleUpdate,
+    handleModalVisible ,userFormValues,confirmLoading} = props;
   //const { userFormValues }=this.state
   let isUpdate=false;
   if(JSON.stringify(userFormValues)!=='{}'){
@@ -64,6 +65,7 @@ const CreateForm = Form.create()(props => {
       title={title}
       width={640}
       visible={modalVisible}
+      confirmLoading={confirmLoading}
       onOk={okHandle}
       onCancel={() => handleModalVisible()}
     >
@@ -71,7 +73,7 @@ const CreateForm = Form.create()(props => {
         {form.getFieldDecorator('user_name', {
           rules: [{ required: true, message: '请输入2-20个字符！', min: 2,max:20 }],
           initialValue: userFormValues.user_name,
-        })(<Input placeholder="请输入用户名" />)}
+        })(<Input placeholder="请输入用户名" disabled={isUpdate}/>)}
         </FormItem>
       <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="密码">
         {form.getFieldDecorator('password', {
@@ -101,6 +103,46 @@ const CreateForm = Form.create()(props => {
   );
 });
 
+
+const AssignRoleForm = Form.create()(props => {
+  const { assignModalVisible, form,handleAssignRoleModalVisible,roleList,confirmLoading} = props;
+  const okHandle = () => {
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      form.resetFields();
+      //TODO
+    });
+  };
+  
+  return (
+    <Modal
+      destroyOnClose
+      title={'分配角色'}
+      width={640}
+      visible={assignModalVisible}
+      confirmLoading={confirmLoading}
+      onOk={okHandle}
+      onCancel={() => handleAssignRoleModalVisible()}
+    >
+       <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="已分配的角色">
+        {form.getFieldDecorator('phono_number', {
+          rules: [{ required: true, message: '请选择要分配的角色！' }],
+          //initialValue:'role_name',
+        })(<Select
+              mode="multiple"
+              style={{ width: '100%' }}
+              placeholder="请选择角色"
+            >
+              {roleList.map(role => (
+                <Option key={role.id} value={role.id}>
+                  {role.role_name}
+                </Option>
+              ))}
+            </Select>)}
+      </FormItem>
+    </Modal>
+  );
+});
 /* eslint react/no-multi-comp:0 */
 @connect(({ userlist, loading }) => ({
   userlist,
@@ -116,6 +158,9 @@ class UserList extends PureComponent {
     formValues: {},
     userFormValues: {},
     updateRowIndex:undefined,
+    assignModalVisible:false,
+    roleList:[],
+    confirmLoading:false,
   };
 
   columns = [
@@ -152,9 +197,11 @@ class UserList extends PureComponent {
       title: '操作',
       render: (text, record,index) => (
         <Fragment>
-          <Button icon="edit" size="small" onClick={() => this.handleUpdateModalVisible(true, record,index)}/>
+          <Button size="small" onClick={() => this.handleUpdateModalVisible(true, record,index)}>
+            <Icon type="edit" theme="twoTone" />
+          </Button>
           <Divider type="vertical" />
-          <Button icon="user-delete" size="small" onClick={() => this.handleDeleteRecord(record,index)}/>
+          <Button icon="user-delete" type='danger' size="small" onClick={() => this.handleDeleteRecord(record,index)}/>
         </Fragment>
       ),
     },
@@ -292,28 +339,43 @@ class UserList extends PureComponent {
 
   handleDelete=(record,index)=>{
     const { dispatch} = this.props;
+    this.setState({
+      confirmLoading:true
+    });
     dispatch({
       type:'userlist/delete',
       payload:{
         record
       },
       callback:(response)=>{
-        let listData=this.props.userlist;
-        //删除页面上的数据
-        listData.data.list.splice(index,1);
+        this.setState({
+            confirmLoading:false
+        });
+        if(response.success){
+          let listData=this.props.userlist;
+          //删除页面上的数据
+          listData.data.list.splice(index,1);
+        }else{
+          message.error(response.message);
+        }
       }
     });
   }
 
   handleAdd = (fields) => {
     const { dispatch,form } = this.props;
+    this.setState({
+      confirmLoading:true
+    });
     dispatch({
       type: 'userlist/add',
       payload: {
         ...fields
       },
       callback:(response)=>{
-        //var that=this;
+        this.setState({
+          confirmLoading:false
+        });
         if(response.success){
           form.resetFields();
           message.success('添加成功');
@@ -335,23 +397,23 @@ class UserList extends PureComponent {
   handleUpdate = (fields) => {
     const { dispatch } = this.props;
     const { updateRowIndex}=this.state;
-    
+    this.setState({
+      confirmLoading:true
+    });
     dispatch({
       type: 'userlist/update',
       payload: {
         ...fields
       },
       callback:(response)=>{
+        this.setState({
+          confirmLoading:false
+        });
         if(response.success){
-          //form.resetFields();
           message.success('修改成功');
           const data=this.props.userlist.data;;
           let datalist=data.list;
-          // const pageSize=data.pagination.pageSize;
-          // if(datalist.length<pageSize){
-            //datalist.splice(updateRowIndex,1);
-            datalist.splice(updateRowIndex,1,response.data);
-          // }
+          datalist.splice(updateRowIndex,1,response.data);
           this.handleModalVisible();
         }else{
           message.error(response.message);
@@ -362,9 +424,39 @@ class UserList extends PureComponent {
     //this.handleUpdateModalVisible();
   };
 
-  handelAssignRoles=()=>{
+  handleAssignRoleModalVisible=(flag)=>{
+    if(flag){
+      //model显示 请求后台数据
+      const { dispatch } = this.props;
+      dispatch(
+        {
+          type: 'userlist/useroles',
+          payload: {
+        },
+        callback:(response)=>{
+          if(response.success){
+            const roles=response.data;
+            this.setState({
+              roleList:roles,
+              assignModalVisible: !!flag,
+            });
+          }else{
+            message.error(response.message);
+          }
+        }
+      });
+    }else{
+      this.setState({
+        assignModalVisible: !!flag,
+        roleList:[],
+      });
+    }
+  }
+
+  handelAssignRoles=(flag)=>{
     const { selectedRows} =this.state;
     console.log(selectedRows);
+    
   }
 
   renderSimpleForm() {
@@ -491,7 +583,8 @@ class UserList extends PureComponent {
       userlist: { data },
       loading,
     } = this.props;
-    const { selectedRows, modalVisible, updateModalVisible, userFormValues } = this.state;
+    const { selectedRows, modalVisible, updateModalVisible, 
+      userFormValues,assignModalVisible,roleList,confirmLoading} = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
         <Menu.Item key="remove">删除</Menu.Item>
@@ -503,7 +596,16 @@ class UserList extends PureComponent {
       handleAdd: this.handleAdd,
       handleUpdate:this.handleUpdate,
       handleModalVisible: this.handleModalVisible,
+      confirmLoading:confirmLoading,
     };
+    const assignRoleModelParentMethods={
+      handleAssignRoleModalVisible:this.handleAssignRoleModalVisible,
+    }
+    const assignRoleModelParentStates={
+      roleList:roleList,
+      assignModalVisible:assignModalVisible,
+      confirmLoading:confirmLoading,
+    }
     // const updateMethods = {
     //   handleUpdateModalVisible: this.handleUpdateModalVisible,
     //   handleUpdate: this.handleUpdate,
@@ -519,7 +621,7 @@ class UserList extends PureComponent {
               </Button>
               {selectedRows.length > 0 && (
                 <span>
-                  <Button onClick={()=>this.handelAssignRoles()}>分配角色</Button>
+                  <Button onClick={()=>this.handleAssignRoleModalVisible(true)}>分配角色</Button>
                   <Dropdown overlay={menu}>
                     <Button>
                       更多操作 <Icon type="down" />
@@ -539,6 +641,7 @@ class UserList extends PureComponent {
           </div>
         </Card>
         <CreateForm {...parentMethods} modalVisible={modalVisible} userFormValues={userFormValues} />
+        <AssignRoleForm {...assignRoleModelParentMethods} {...assignRoleModelParentStates} />
       </PageHeaderWrapper>
     );
   }
