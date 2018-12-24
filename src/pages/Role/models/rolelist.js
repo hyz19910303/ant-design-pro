@@ -1,5 +1,5 @@
 // import { queryRule, removeRule, addRule, updateRule } from '@/services/api';
-import { queryRolePageList,addRole,deleteRole,updateRole } from '@/services/role';
+import { queryRolePageList,addRole,deleteRole,updateRole,queryRoleMenusDetail } from '@/services/role';
 
 export default {
   namespace: 'rolelist',
@@ -64,6 +64,10 @@ export default {
     },
     *update({ payload, callback }, { call, put }) {
       const response = yield call(updateRole, payload);
+      if (callback) callback(response);
+    },
+    *roleAssignMenus({ payload, callback }, { call, put }) {
+      const response = yield call(queryRoleMenusDetail, payload);
       if (callback) callback(response);
     },
   },

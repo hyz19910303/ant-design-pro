@@ -40,8 +40,8 @@ const statusMap = ['default','success','error'];
 const status = ['未定义','正常', '删除'];
 
 const CreateForm = Form.create()(props => {
-  const { modalVisible, form, handleAdd,handleUpdate,handleModalVisible ,
-    roleFormValues,pid,radioSeleted} = props;
+  const { modalVisible, form, handleAdd,handleUpdate,handleModalVisible,
+    roleFormValues,pid,radioSeleted,confirmLoading} = props;
   let { radioVal}=props;
   let isUpdate=false;
   
@@ -78,6 +78,7 @@ const CreateForm = Form.create()(props => {
       width={640}
       visible={modalVisible}
       onOk={okHandle}
+      confirmLoading={confirmLoading}
       onCancel={() => handleModalVisible()}
     > 
       <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="菜单类型">
@@ -136,13 +137,13 @@ const CreateForm = Form.create()(props => {
 class MenuList extends PureComponent {
   state = {
     modalVisible: false,
-    updateModalVisible: false,
     expandForm: false,
     selectedRows: [],
     formValues: {},
     roleFormValues: {},
     updateRowIndex:undefined,
     radioVal:'0',
+    confirmLoading:false,//弹出框加载
   };
 
   columns = [    
@@ -188,10 +189,12 @@ class MenuList extends PureComponent {
       render: (text, record,index) => (
 
         <Fragment>
-          <Button icon="edit" size="small" onClick={() => this.handleUpdateModalVisible(true, record,index)}/>
-          {/*<Divider type="vertical" />*/}
-          <Button icon="plus" size="small" onClick={() => this.handleModalVisible(true,record)}/>
-          {record.children?null:<Button icon="delete" size="small" onClick={() => this.handleDeleteRecord(record,index)}/>}
+          
+          <Button icon='plus' size="small" onClick={() => this.handleModalVisible(true,record)}/>
+          <Button  size="small" onClick={() => this.handleUpdateModalVisible(true, record,index)}>
+            <Icon type="edit" theme="twoTone" />
+          </Button>
+          {record.children?null:<Button icon="delete" type='danger' size="small" onClick={() => this.handleDeleteRecord(record,index)}/>}
         </Fragment>
       ),
     },
@@ -356,20 +359,21 @@ class MenuList extends PureComponent {
 
   handleDelete=(record,index)=>{
     const { dispatch} = this.props;
+    this.changeConfirmLoadState(true);
     dispatch({
       type:'menulist/delete',
       payload:{
         record
       },
       callback:(response)=>{
+        this.changeConfirmLoadState();
         if(response.success){
           let listData=this.props.menulist;
-          //删除页面上的数据
           let parentNode=this.queryParentNode(listData.data.list,record.pid);
           for(var i=0;i<parentNode.children.length;i++){
-            if(parentNode.children[i].id=record.id){
+            if(parentNode.children[i].id===record.id){
               parentNode.children.splice(i,1);
-              return;
+              break;
             }
           }
           message.success('删除成功');
@@ -383,13 +387,14 @@ class MenuList extends PureComponent {
 
   handleAdd = (fields) => {
     const { dispatch,form } = this.props;
+    this.changeConfirmLoadState(true);
     dispatch({
       type: 'menulist/add',
       payload: {
         ...fields
       },
       callback:(response)=>{
-        //var that=this;
+        this.changeConfirmLoadState();
         if(response.success){
           form.resetFields();
           message.success('添加成功');
@@ -410,18 +415,26 @@ class MenuList extends PureComponent {
     });
   }
 
+   changeConfirmLoadState=flag=>{
+    this.setState(
+      {
+          confirmLoading:!!flag
+      }
+    );
+  }
+
   handleUpdate = (fields) => {
     const { dispatch } = this.props;
     const { updateRowIndex}=this.state;
-    
+    this.changeConfirmLoadState(true);
     dispatch({
       type: 'menulist/update',
       payload: {
         ...fields
       },
       callback:(response)=>{
+        this.changeConfirmLoadState();
         if(response.success){
-          //form.resetFields();
           message.success('修改成功');
           this.handleModalVisible();
           const data=this.props.menulist.data;;
@@ -429,20 +442,16 @@ class MenuList extends PureComponent {
           let record=response.data;
           let parentNode=this.queryParentNode(datalist,record.pid);
           for(var i=0;i<parentNode.children.length;i++){
-            if(parentNode.children[i].id=record.id){
-              //parentNode.children.splice(i,1);
+            if(parentNode.children[i].id===record.id){
               parentNode.children.splice(i,1,record);
-              
-              return;
+              break;
             }
           }
         }else{
           message.error(response.message);
         }
-        
       }
     })
-    //this.handleUpdateModalVisible();
   };
 
   renderSimpleForm() {
@@ -493,15 +502,17 @@ class MenuList extends PureComponent {
       menulist: { data },
       loading,
     } = this.props;
-    const { selectedRows, modalVisible, updateModalVisible, roleFormValues,pid,radioVal} = this.state;
-    const parentMethods = {
+    const { selectedRows, modalVisible, roleFormValues,pid,radioVal,confirmLoading} = this.state;
+    const parentMethodsAndState = {
       handleAdd: this.handleAdd,
       handleUpdate:this.handleUpdate,
       handleModalVisible: this.handleModalVisible,
       pid:pid,
       radioSeleted:this.radioSeleted,
+      modalVisible:modalVisible,
       radioVal:radioVal,
-
+      confirmLoading:confirmLoading,
+      roleFormValues:roleFormValues,
     };
     return (
       <PageHeaderWrapper title="菜单列表">
@@ -518,7 +529,7 @@ class MenuList extends PureComponent {
             />
           </div>
         </Card>
-        <CreateForm {...parentMethods} modalVisible={modalVisible} roleFormValues={roleFormValues}  />
+        <CreateForm {...parentMethodsAndState} />
       </PageHeaderWrapper>
     );
   }

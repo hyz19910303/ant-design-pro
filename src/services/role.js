@@ -44,3 +44,14 @@ export async function updateRole(params) {
     }
   });
 }
+
+export async function queryRoleMenusDetail(params) {
+  const { selectedRows} =params;
+  let userids=[];
+  selectedRows.map(item=>{
+    userids.push(item.id);
+  });
+  return request(`/api/security/role/assignMenus/?ids=${userids.join(',')}`,{
+    method:'POST',
+  });
+}

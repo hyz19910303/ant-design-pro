@@ -8,6 +8,7 @@ import {
   Form,
   Input,
   Select,
+  TreeSelect,
   Icon,
   Button,
   Dropdown,
@@ -39,7 +40,7 @@ const statusMap = ['default','success','error'];
 const status = ['未定义','正常', '删除'];
 
 const CreateForm = Form.create()(props => {
-  const { modalVisible, form, handleAdd,handleUpdate,handleModalVisible ,roleFormValues} = props;
+  const { modalVisible, form, handleAdd,handleUpdate,handleModalVisible,roleFormValues,confirmLoading} = props;
   //const { roleFormValues }=this.state
   let isUpdate=false;
   if(JSON.stringify(roleFormValues)!=='{}'){
@@ -65,6 +66,7 @@ const CreateForm = Form.create()(props => {
       width={640}
       visible={modalVisible}
       onOk={okHandle}
+      confirmLoading={confirmLoading}
       onCancel={() => handleModalVisible()}
     >
       <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="角色名称">
@@ -89,6 +91,49 @@ const CreateForm = Form.create()(props => {
   );
 });
 
+const AssignMenuForm = Form.create()(props => {
+  const { assignModalVisible, form,confirmLoading,handleAssignMenuModalVisible,
+    menuTreeData,assignMenus} = props;
+  const TreeNode = TreeSelect.TreeNode
+  let isUpdate=false;
+  const okHandle = () => {
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      //form.resetFields();
+      console.log(1111);
+    });
+  };
+  debugger
+  const treeSelectProp={
+    multiple:true,//多选
+    treeCheckable:true,//展示复选框
+    showCheckedStrategy:TreeSelect.SHOW_ALL,//展示策略
+    treeDefaultExpandAll:true,
+    treeDataSimpleMode:true,
+    style:{width:'100%'},
+    value:assignMenus,
+  };
+  return (
+    <Modal
+      destroyOnClose
+      title={'分配菜单'}
+      width={640}
+      visible={assignModalVisible}
+      onOk={okHandle}
+      confirmLoading={confirmLoading}
+      onCancel={() => handleAssignMenuModalVisible()}
+    >
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="角色名称">
+        {form.getFieldDecorator('id', {
+          rules: [{ required: true, message: '请输入2-20个字符！', min: 2,max:20 }],
+          initialValue: assignMenus,
+        })(<TreeSelect treeData={menuTreeData} {...treeSelectProp} placeholder="请选择..." />
+        )}
+        </FormItem>
+    </Modal>
+  );
+});
+
 /* eslint react/no-multi-comp:0 */
 @connect(({ rolelist, loading }) => ({
   rolelist,
@@ -98,12 +143,14 @@ const CreateForm = Form.create()(props => {
 class RoleList extends PureComponent {
   state = {
     modalVisible: false,
-    updateModalVisible: false,
     expandForm: false,
     selectedRows: [],
     formValues: {},
     roleFormValues: {},
     updateRowIndex:undefined,
+    confirmLoading:false,//弹出框加载
+    assignModalVisible:false,
+    assignMenus:[],
   };
 
   columns = [
@@ -136,9 +183,11 @@ class RoleList extends PureComponent {
       title: '操作',
       render: (text, record,index) => (
         <Fragment>
-          <Button icon="edit" size="small" onClick={() => this.handleUpdateModalVisible(true, record,index)}/>
+          <Button size="small" onClick={() => this.handleUpdateModalVisible(true, record,index)}>
+            <Icon type="edit" theme="twoTone" />
+          </Button>
           <Divider type="vertical" />
-          <Button icon="delete" size="small" onClick={() => this.handleDeleteRecord(record,index)}/>
+          <Button type='danger' icon="delete" size="small" onClick={() => this.handleDeleteRecord(record,index)}/>
         </Fragment>
       ),
     },
@@ -276,28 +325,35 @@ class RoleList extends PureComponent {
 
   handleDelete=(record,index)=>{
     const { dispatch} = this.props;
+    this.changeConfirmLoadState(true);
     dispatch({
       type:'rolelist/delete',
       payload:{
         record
       },
       callback:(response)=>{
-        let listData=this.props.rolelist;
-        //删除页面上的数据
-        listData.data.list.splice(index,1);
+        this.changeConfirmLoadState();
+        if(response.success){
+          let listData=this.props.rolelist;
+          //删除页面上的数据
+          listData.data.list.splice(index,1);
+        }else{
+          message.error(response.message);
+        }
       }
     });
   }
 
   handleAdd = (fields) => {
     const { dispatch,form } = this.props;
+    this.changeConfirmLoadState(true);
     dispatch({
       type: 'rolelist/add',
       payload: {
         ...fields
       },
       callback:(response)=>{
-        //var that=this;
+        this.changeConfirmLoadState();
         if(response.success){
           form.resetFields();
           message.success('添加成功');
@@ -316,35 +372,77 @@ class RoleList extends PureComponent {
     });
   }
 
+  changeConfirmLoadState=flag=>{
+    this.setState(
+      {
+          confirmLoading:!!flag
+      }
+    );
+  }
+
   handleUpdate = (fields) => {
     const { dispatch } = this.props;
     const { updateRowIndex}=this.state;
-    
+    this.changeConfirmLoadState(true);
     dispatch({
       type: 'rolelist/update',
       payload: {
         ...fields
       },
       callback:(response)=>{
+        this.changeConfirmLoadState();
         if(response.success){
-          //form.resetFields();
           message.success('修改成功');
           const data=this.props.rolelist.data;;
           let datalist=data.list;
-          // const pageSize=data.pagination.pageSize;
-          // if(datalist.length<pageSize){
-            //datalist.splice(updateRowIndex,1);
-            datalist.splice(updateRowIndex,1,response.data);
-          // }
+          datalist.splice(updateRowIndex,1,response.data);
           this.handleModalVisible();
         }else{
           message.error(response.message);
         }
-        
       }
     })
-    //this.handleUpdateModalVisible();
   };
+
+  handleAssignMenuModalVisible=(flag)=>{
+    const { selectedRows } = this.state;
+    if(flag){
+      //model显示 请求后台数据
+      const { dispatch } = this.props;
+      dispatch(
+        {
+          type: 'rolelist/roleAssignMenus',
+          payload: {
+            selectedRows:selectedRows
+        },
+        callback:(response)=>{
+          if(response.success){
+            const data=response.data;
+            let treeMenus=data.TreeMenus;
+            
+            treeMenus=treeMenus.map(item=>{
+              item['pId']=item.pid;
+              item['title']=item.menu_name;
+              return item;
+            });
+            const assignMenus=data.AssignMenus;
+            this.setState({
+              menuTreeData:treeMenus,
+              assignModalVisible:!!flag,
+              assignMenus:assignMenus,
+            });
+          }else{
+            message.error(response.message);
+          }
+        }
+      });
+    }else{
+      this.setState({
+        assignModalVisible: !!flag,
+        menuTreeData:[],
+      });
+    }
+  }
 
   renderSimpleForm() {
     const {
@@ -394,7 +492,8 @@ class RoleList extends PureComponent {
       rolelist: { data },
       loading,
     } = this.props;
-    const { selectedRows, modalVisible, updateModalVisible, roleFormValues } = this.state;
+    const { selectedRows, modalVisible, roleFormValues,confirmLoading,
+      assignModalVisible,menuTreeData,assignMenus } = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
         <Menu.Item key="remove">删除</Menu.Item>
@@ -402,15 +501,23 @@ class RoleList extends PureComponent {
       </Menu>
     );
 
-    const parentMethods = {
+    const parentMethodsAndState = {
       handleAdd: this.handleAdd,
       handleUpdate:this.handleUpdate,
       handleModalVisible: this.handleModalVisible,
+      confirmLoading:confirmLoading,
+      modalVisible:modalVisible,
+      roleFormValues: roleFormValues,
     };
-    // const updateMethods = {
-    //   handleUpdateModalVisible: this.handleUpdateModalVisible,
-    //   handleUpdate: this.handleUpdate,
-    // };
+    
+    const assignMenuModelParentMethodsAndStates={
+      assignModalVisible:assignModalVisible,
+      menuTreeData:menuTreeData,
+      handleAssignMenuModalVisible:this.handleAssignMenuModalVisible,
+      roleFormValues: roleFormValues,
+      assignMenus:assignMenus,
+    }
+
     return (
       <PageHeaderWrapper title="角色列表">
         <Card bordered={false}>
@@ -422,7 +529,7 @@ class RoleList extends PureComponent {
               </Button>
               {selectedRows.length > 0 && (
                 <span>
-                  <Button>批量操作</Button>
+                  <Button onClick={()=>this.handleAssignMenuModalVisible(true)}>分配菜单</Button>
                   <Dropdown overlay={menu}>
                     <Button>
                       更多操作 <Icon type="down" />
@@ -441,7 +548,8 @@ class RoleList extends PureComponent {
             />
           </div>
         </Card>
-        <CreateForm {...parentMethods} modalVisible={modalVisible} roleFormValues={roleFormValues} />
+        <CreateForm {...parentMethodsAndState} />
+        <AssignMenuForm {...assignMenuModelParentMethodsAndStates} />
       </PageHeaderWrapper>
     );
   }
