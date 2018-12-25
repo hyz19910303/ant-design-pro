@@ -93,23 +93,23 @@ const CreateForm = Form.create()(props => {
 
 const AssignMenuForm = Form.create()(props => {
   const { assignModalVisible, form,confirmLoading,handleAssignMenuModalVisible,
-    menuTreeData,assignMenus} = props;
+    menuTreeData,assignMenus,handleAssignRoleMenus} = props;
   const TreeNode = TreeSelect.TreeNode
   let isUpdate=false;
   const okHandle = () => {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       //form.resetFields();
-      console.log(1111);
+      handleAssignRoleMenus(fieldsValue)
     });
   };
   //debugger
   const treeSelectProp={
     multiple:true,//多选
     treeCheckable:true,//展示复选框
-    showCheckedStrategy:TreeSelect.SHOW_ALL,//展示策略
+    showCheckedStrategy:TreeSelect.SHOW_CHILD ,//展示策略
     treeDefaultExpandAll:false,
-    treeDataSimpleMode:true,
+    treeDataSimpleMode:false,
     style:{width:'100%'},
     //value:assignMenus,
   };
@@ -409,8 +409,7 @@ class RoleList extends PureComponent {
     if(flag){
       //model显示 请求后台数据
       const { dispatch } = this.props;
-      dispatch(
-        {
+      dispatch({
           type: 'rolelist/roleAssignMenus',
           payload: {
             selectedRows:selectedRows
@@ -420,14 +419,17 @@ class RoleList extends PureComponent {
             const data=response.data;
             let treeMenus=data.TreeMenus;
             
-            treeMenus=treeMenus.map(item=>{
-              item['pId']=item.pid;
-              item['title']=item.menu_name;
-              return item;
-            });
+            // treeMenus=treeMenus.map(item=>{
+            //   item['pId']=item.pid;
+            //   item['title']=item.menu_name;
+            //   return item;
+            // });
+            
+            this.listDataConvertSelectTreeData([treeMenus]);
+            
             const assignMenus=data.AssignMenus;
             this.setState({
-              menuTreeData:treeMenus,
+              menuTreeData:[treeMenus],
               assignModalVisible:!!flag,
               assignMenus:assignMenus,
             });
@@ -447,9 +449,45 @@ class RoleList extends PureComponent {
   listDataConvertSelectTreeData=(list)=>{    
     
     for(var i=0;i<list.length;i++){
-      const item=list[i];
+      let item=list[i];
+      item.title=item.menu_name;
+      item.key=item.id;
+      item.value=item.id;
+      if(item.children){
+        this.listDataConvertSelectTreeData(item.children);
+      }
       
     }
+  }
+
+  handleAssignRoleMenus=(menuids)=>{
+     const { dispatch } = this.props;
+     const { selectedRows } = this.state;
+     let roleids=[];
+      selectedRows.map(item=>{
+        roleids.push(item.id);
+      });
+     this.changeConfirmLoadState(true);
+     dispatch({
+          type: 'rolelist/assignRoleMenus',
+          payload: {
+            menuids:menuids['id'],
+            roleids:roleids,
+        },
+        callback:(response)=>{
+          this.changeConfirmLoadState();
+          if(response.success){
+            message.success('分配成功');
+            this.setState({
+              menuTreeData:[],
+              assignMenus:[],
+              assignModalVisible: false,
+            });
+          }else{
+            message.error(response.message);
+          }
+        }
+     });
   }
 
   renderSimpleForm() {
@@ -524,6 +562,7 @@ class RoleList extends PureComponent {
       handleAssignMenuModalVisible:this.handleAssignMenuModalVisible,
       roleFormValues: roleFormValues,
       assignMenus:assignMenus,
+      handleAssignRoleMenus:this.handleAssignRoleMenus,
     }
 
     return (

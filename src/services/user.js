@@ -66,7 +66,7 @@ export async function queryUserRolesDetail(params) {
 //分配角色
 export async function allignRoles(params) {
   const {userids,roleids} =params;
-  return request(`/api/security/userRefrole/assignRole/?userids=${userids.join(',')}&roleids=${roleids.join(',')}`,{
+  return request(`/api/security/userRefRole/assignRole/?userids=${userids.join(',')}&roleids=${roleids.join(',')}`,{
     method:'POST',
   });
 }

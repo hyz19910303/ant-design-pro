@@ -55,3 +55,10 @@ export async function queryRoleMenusDetail(params) {
     method:'POST',
   });
 }
+
+export async function assignRoleMenus(params) {
+  const { menuids,roleids} =params;
+  return request(`/api/security/roleRefMenu/assignMenus?menuids=${menuids.join(',')}&roleids=${roleids.join(',')}`,{
+    method:'POST',
+  });
+}
