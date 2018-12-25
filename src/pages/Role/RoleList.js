@@ -103,15 +103,15 @@ const AssignMenuForm = Form.create()(props => {
       console.log(1111);
     });
   };
-  debugger
+  //debugger
   const treeSelectProp={
     multiple:true,//多选
     treeCheckable:true,//展示复选框
     showCheckedStrategy:TreeSelect.SHOW_ALL,//展示策略
-    treeDefaultExpandAll:true,
+    treeDefaultExpandAll:false,
     treeDataSimpleMode:true,
     style:{width:'100%'},
-    value:assignMenus,
+    //value:assignMenus,
   };
   return (
     <Modal
@@ -125,7 +125,7 @@ const AssignMenuForm = Form.create()(props => {
     >
       <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="角色名称">
         {form.getFieldDecorator('id', {
-          rules: [{ required: true, message: '请输入2-20个字符！', min: 2,max:20 }],
+          rules: [{ required: true, message: '请输入2-20个字符！' }],
           initialValue: assignMenus,
         })(<TreeSelect treeData={menuTreeData} {...treeSelectProp} placeholder="请选择..." />
         )}
@@ -441,6 +441,14 @@ class RoleList extends PureComponent {
         assignModalVisible: !!flag,
         menuTreeData:[],
       });
+    }
+  }
+
+  listDataConvertSelectTreeData=(list)=>{    
+    
+    for(var i=0;i<list.length;i++){
+      const item=list[i];
+      
     }
   }
 
