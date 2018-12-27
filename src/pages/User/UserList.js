@@ -23,6 +23,7 @@ import {
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
+import Authorized from '@/utils/Authorized';
 
 import styles from './UserList.less';
 
@@ -198,7 +199,7 @@ class UserList extends PureComponent {
       title: '操作',
       render: (text, record,index) => (
         <Fragment>
-          <Button size="small" onClick={() => this.handleUpdateModalVisible(true, record,index)}>
+          <Button disabled size="small" onClick={() => this.handleUpdateModalVisible(true, record,index)}>
             <Icon type="edit" theme="twoTone" />
           </Button>
           <Divider type="vertical" />
@@ -614,8 +615,11 @@ class UserList extends PureComponent {
   render() {
     const {
       userlist: { data },
+      location: { pathname },
+      route: { routes },
       loading,
     } = this.props;
+    
     const { selectedRows, modalVisible, updateModalVisible, 
       userFormValues,assignModalVisible,roleList,confirmLoading,assignRoles} = this.state;
     const menu = (

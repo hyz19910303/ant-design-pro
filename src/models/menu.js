@@ -100,7 +100,10 @@ export default {
     *getMenuData({ payload }, { call,put }) {
       const {  authority } = payload;
       const response=yield call(getMenuTreeData);
-      const menuData = filterMenuData(memoizeOneFormatter(response, authority));
+       debugger
+      const res=memoizeOneFormatter(response, authority)
+     
+      const menuData = filterMenuData(res);
       const breadcrumbNameMap = memoizeOneGetBreadcrumbNameMap(menuData);
       yield put({
         type: 'save',
