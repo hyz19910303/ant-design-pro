@@ -199,9 +199,16 @@ class UserList extends PureComponent {
       title: '操作',
       render: (text, record,index) => (
         <Fragment>
-          <Button disabled size="small" onClick={() => this.handleUpdateModalVisible(true, record,index)}>
-            <Icon type="edit" theme="twoTone" />
-          </Button>
+          <Authorized authority={'user'} noMatch={
+            <Button disabled size="small" onClick={() => this.handleUpdateModalVisible(true, record,index)}>
+              <Icon type="edit" theme="twoTone" />
+            </Button>
+          } >
+            <Button  size="small" onClick={() => this.handleUpdateModalVisible(true, record,index)}>
+              <Icon type="edit" theme="twoTone" />
+            </Button>
+          </Authorized>
+          
           <Divider type="vertical" />
           <Button icon="user-delete" type='danger' size="small" onClick={() => this.handleDeleteRecord(record,index)}/>
         </Fragment>
