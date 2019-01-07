@@ -7,14 +7,14 @@ import styles from './RegisterResult.less';
 
 const actions = (
   <div className={styles.actions}>
-    <a href="">
+    {/*<a href="">
       <Button size="large" type="primary">
         <FormattedMessage id="app.register-result.view-mailbox" />
       </Button>
-    </a>
-    <Link to="/">
+    </a>*/}
+    <Link to="/user/login">
       <Button size="large">
-        <FormattedMessage id="app.register-result.back-home" />
+       返回登入
       </Button>
     </Link>
   </div>

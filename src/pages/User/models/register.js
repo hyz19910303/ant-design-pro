@@ -1,4 +1,4 @@
-import { fakeRegister } from '@/services/api';
+import { fakeRegister } from '@/services/register';
 import { setAuthority } from '@/utils/authority';
 import { reloadAuthorized } from '@/utils/Authorized';
 
@@ -21,11 +21,12 @@ export default {
 
   reducers: {
     registerHandle(state, { payload }) {
-      setAuthority('user');
-      reloadAuthorized();
+      //setAuthority('user');
+      //reloadAuthorized();
+      
       return {
         ...state,
-        status: payload.status,
+        status: payload.success,
       };
     },
   },

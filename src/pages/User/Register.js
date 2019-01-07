@@ -50,8 +50,9 @@ class Register extends Component {
 
   componentDidUpdate() {
     const { form, register } = this.props;
-    const account = form.getFieldValue('mail');
-    if (register.status === 'ok') {
+    const account = form.getFieldValue('email');
+    
+    if (register.status) {
       router.push({
         pathname: '/user/register-result',
         state: {
@@ -184,7 +185,19 @@ class Register extends Component {
         </h3>
         <Form onSubmit={this.handleSubmit}>
           <FormItem>
-            {getFieldDecorator('mail', {
+            {getFieldDecorator('user_name', {
+              rules: [
+                {
+                  required: true,
+                  message: '用户名不能为空',
+                },
+              ],
+            })(
+              <Input size="large" placeholder={'请输入用户名'} />
+            )}
+          </FormItem>
+          <FormItem>
+            {getFieldDecorator('email', {
               rules: [
                 {
                   required: true,
@@ -260,7 +273,7 @@ class Register extends Component {
                 <Option value="86">+86</Option>
                 <Option value="87">+87</Option>
               </Select>
-              {getFieldDecorator('mobile', {
+              {getFieldDecorator('phono_number', {
                 rules: [
                   {
                     required: true,
@@ -280,7 +293,7 @@ class Register extends Component {
               )}
             </InputGroup>
           </FormItem>
-          <FormItem>
+          {/*<FormItem>
             <Row gutter={8}>
               <Col span={16}>
                 {getFieldDecorator('captcha', {
@@ -310,7 +323,7 @@ class Register extends Component {
                 </Button>
               </Col>
             </Row>
-          </FormItem>
+          </FormItem>*/}
           <FormItem>
             <Button
               size="large"
