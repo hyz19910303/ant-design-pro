@@ -16,10 +16,15 @@ class LoginPage extends Component {
   state = {
     type: 'account',
     autoLogin: true,
+    captchaSrc: undefined,
   };
 
   onTabChange = type => {
     this.setState({ type });
+  };
+//挂载后请求验证码
+  componentDidMount() {
+    this.onGetCaptchaImg();
   };
 
   onGetCaptcha = () =>
@@ -38,6 +43,21 @@ class LoginPage extends Component {
         }
       });
     });
+
+  onGetCaptchaImg=()=>{
+    const { dispatch } = this.props;
+    var {captchaSrc } = this.state;
+    dispatch({
+      type: 'login/getCaptchaImg',
+      payload: {
+
+      },
+      callback:(response)=>{
+        this.setState({captchaSrc:response})
+      }
+    })
+    
+  }
 
   handleSubmit = (err, values) => {
     const { type } = this.state;
@@ -65,7 +85,7 @@ class LoginPage extends Component {
 
   render() {
     const { login, submitting } = this.props;
-    const { type, autoLogin } = this.state;
+    const { type, autoLogin,captchaSrc } = this.state;
     return (
       <div className={styles.main}>
         <Login
@@ -105,8 +125,8 @@ class LoginPage extends Component {
             <CaptchaImg
               name="captcha"
               placeholder={formatMessage({ id: 'form.verification-code.placeholder' })}
-              onGetCaptcha={this.onGetCaptcha}
-              src={'http://localhost:9690/security/captcha'}
+              onGetCaptcha={this.onGetCaptchaImg}
+              src={captchaSrc}
               getCaptchaButtonText={formatMessage({ id: 'form.get-captcha' })}
               getCaptchaSecondText={formatMessage({ id: 'form.captcha.second' })}
               rules={[

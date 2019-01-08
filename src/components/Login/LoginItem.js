@@ -71,8 +71,8 @@ class WrapFormItem extends Component {
   };
 
   render() {
-    const { count } = this.state;
-
+    const { count ,srca} = this.state;
+    
     const {
       form: { getFieldDecorator },
     } = this.props;
@@ -120,6 +120,7 @@ class WrapFormItem extends Component {
       );
     }else if(type === 'CaptchaImg'){
        const inputProps = omit(otherProps, ['onGetCaptcha', 'countDown']);
+       
        return (
         <FormItem>
           <Row gutter={8}>
