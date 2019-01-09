@@ -6,3 +6,13 @@ export async function getFakeCaptchaImg() {
   return '/api/security/captcha?_='+stmp;
 }
 
+
+export async function fakeAccountLogin(params) {
+  const { captcha,username,password,type,...restProps} =params
+  debugger
+  return request(`/api/security/login?${stringify(params)}`, {
+    method: 'POST',
+    body: {}
+  });
+}
+

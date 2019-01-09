@@ -61,12 +61,14 @@ class LoginPage extends Component {
 
   handleSubmit = (err, values) => {
     const { type } = this.state;
+    const {userName} =values;
     if (!err) {
       const { dispatch } = this.props;
       dispatch({
         type: 'login/login',
         payload: {
           ...values,
+          username:userName,
           type,
         },
       });

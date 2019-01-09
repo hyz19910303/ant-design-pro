@@ -1,7 +1,7 @@
 import { routerRedux } from 'dva/router';
 import { stringify } from 'qs';
-import { fakeAccountLogin, getFakeCaptcha } from '@/services/api';
-import { getFakeCaptchaImg } from '@/services/login';
+//import { fakeAccountLogin, getFakeCaptcha } from '@/services/api';
+import { fakeAccountLogin,getFakeCaptchaImg } from '@/services/login';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 import { reloadAuthorized } from '@/utils/Authorized';
