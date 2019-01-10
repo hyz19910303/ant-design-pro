@@ -100,7 +100,7 @@ export default {
     *getMenuData({ payload }, { call,put }) {
       const {  authority } = payload;
       const response=yield call(getMenuTreeData);
-       debugger
+     //  debugger
       const res=memoizeOneFormatter(response, authority)
      
       const menuData = filterMenuData(res);

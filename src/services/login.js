@@ -3,13 +3,12 @@ import request from '@/utils/request';
 
 export async function getFakeCaptchaImg() {
   var stmp=new Date().getTime()
-  return '/api/security/captcha?_='+stmp;
+  return request('/api/security/captcha');
 }
 
 
 export async function fakeAccountLogin(params) {
   const { captcha,username,password,type,...restProps} =params
-  debugger
   return request(`/api/security/login?${stringify(params)}`, {
     method: 'POST',
     body: {}

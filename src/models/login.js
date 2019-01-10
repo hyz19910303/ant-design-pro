@@ -21,9 +21,11 @@ export default {
         payload: response,
       });
       // Login successfully
-      if (response.status === 'ok') {
+      if (response.success) {
         reloadAuthorized();
         const urlParams = new URL(window.location.href);
+        const token = response.token;
+        localStorage.setItem('token',token);
         const params = getPageQuery();
         let { redirect } = params;
         if (redirect) {
@@ -48,6 +50,7 @@ export default {
 
     *getCaptchaImg({ payload,callback }, { call }){
        const imgsrc=yield call(getFakeCaptchaImg, payload);
+
        if(callback){
          callback(imgsrc);
        }

@@ -53,7 +53,7 @@ class LoginPage extends Component {
 
       },
       callback:(response)=>{
-        this.setState({captchaSrc:response})
+        this.setState({captchaSrc:response.image})
       }
     })
     
@@ -64,12 +64,13 @@ class LoginPage extends Component {
     const {userName} =values;
     if (!err) {
       const { dispatch } = this.props;
+      const captcha_id = localStorage.getItem('captcha_id');
       dispatch({
         type: 'login/login',
         payload: {
           ...values,
-          username:userName,
           type,
+          captcha_id,
         },
       });
     }
@@ -104,7 +105,7 @@ class LoginPage extends Component {
               !submitting &&
               this.renderMessage(formatMessage({ id: 'app.login.message-invalid-credentials' }))}
             <UserName
-              name="userName"
+              name="username"
               placeholder={`${formatMessage({ id: 'app.login.userName' })}`}
               rules={[
                 {
@@ -128,7 +129,7 @@ class LoginPage extends Component {
               name="captcha"
               placeholder={formatMessage({ id: 'form.verification-code.placeholder' })}
               onGetCaptcha={this.onGetCaptchaImg}
-              src={captchaSrc}
+              src={captchaSrc?("data:image/png;base64,"+captchaSrc):''}
               getCaptchaButtonText={formatMessage({ id: 'form.get-captcha' })}
               getCaptchaSecondText={formatMessage({ id: 'form.captcha.second' })}
               rules={[

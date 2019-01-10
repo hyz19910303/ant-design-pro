@@ -43,12 +43,14 @@ const cachedSave = (response, hashcode) => {
    * Does not support data other than json, Cache only json
    */
   const contentType = response.headers.get('Content-Type');
+  const captcha_id = response.headers.get('captcha_id');
   if (contentType && contentType.match(/application\/json/i)) {
     // All data is saved as text
     response
       .clone()
       .text()
       .then(content => {
+        localStorage.setItem('captcha_id',captcha_id);
         sessionStorage.setItem(hashcode, content);
         sessionStorage.setItem(`${hashcode}:timestamp`, Date.now());
       });
@@ -68,6 +70,12 @@ export default function request(url, option) {
     expirys: isAntdPro(),
     ...option,
   };
+  const userAuthority =sessionStorage.getItem('userAuthority')
+  // if(!userAuthority){
+  //   window.g_app._store.dispatch({
+  //         type: 'login/logout',
+  //   });
+  // }
   /**
    * Produce fingerprints based on url and parameters
    * Maybe url has the same parameters
@@ -102,7 +110,10 @@ export default function request(url, option) {
       };
     }
   }
-
+  const token = localStorage.getItem('token');
+  if(token && token!='null'){ 
+    newOptions.headers?(newOptions.headers.token=token):newOptions.headers={token:token}; 
+  }
   const expirys = options.expirys && 60;
   // options.expirys !== false, return the cache,
   if (options.expirys !== false) {
