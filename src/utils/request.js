@@ -44,13 +44,20 @@ const cachedSave = (response, hashcode) => {
    */
   const contentType = response.headers.get('Content-Type');
   const captcha_id = response.headers.get('captcha_id');
+  //更新token用
+  const token = response.headers.get('token');
+  if(token){
+    localStorage.setItem('token',token);
+  }
+  if(captcha_id){
+    sessionStorage.setItem('captcha_id',captcha_id);
+  }
   if (contentType && contentType.match(/application\/json/i)) {
     // All data is saved as text
     response
       .clone()
       .text()
       .then(content => {
-        localStorage.setItem('captcha_id',captcha_id);
         sessionStorage.setItem(hashcode, content);
         sessionStorage.setItem(`${hashcode}:timestamp`, Date.now());
       });
@@ -70,12 +77,23 @@ export default function request(url, option) {
     expirys: isAntdPro(),
     ...option,
   };
-  const userAuthority =sessionStorage.getItem('userAuthority')
-  // if(!userAuthority){
-  //   window.g_app._store.dispatch({
-  //         type: 'login/logout',
-  //   });
-  // }
+  const userAuthority =localStorage.getItem('userAuthority');
+  const captcha_id=sessionStorage.getItem('captcha_id');
+  const token =localStorage.getItem('token');
+  var legalUrl=true;
+  
+  if(captcha_id){
+    if((userAuthority && userAuthority!='undefined') && !token){
+      legalUrl=false;
+    }
+  }else{
+     legalUrl=false;
+  }
+  if(!legalUrl){
+    window.g_app._store.dispatch({
+          type: 'login/logout',
+    });
+  }
   /**
    * Produce fingerprints based on url and parameters
    * Maybe url has the same parameters
@@ -110,7 +128,7 @@ export default function request(url, option) {
       };
     }
   }
-  const token = localStorage.getItem('token');
+  //const token = localStorage.getItem('token');
   if(token && token!='null'){ 
     newOptions.headers?(newOptions.headers.token=token):newOptions.headers={token:token}; 
   }
@@ -139,6 +157,15 @@ export default function request(url, option) {
         return response.text();
       }
       return response.json();
+    })
+    .then(response =>{
+      if(response.code==401){
+        window.g_app._store.dispatch({
+          type: 'login/logout',
+        });
+        return;
+      }
+      return response;
     })
     .catch(e => {
       const status = e.name;

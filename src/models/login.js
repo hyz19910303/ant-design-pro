@@ -14,7 +14,7 @@ export default {
   },
 
   effects: {
-    *login({ payload }, { call, put }) {
+    *login({ payload , callback}, { call, put }) {
       const response = yield call(fakeAccountLogin, payload);
       yield put({
         type: 'changeLoginStatus',
@@ -41,6 +41,8 @@ export default {
           }
         }
         yield put(routerRedux.replace(redirect || '/'));
+      }else {
+        if(callback) callback(response);
       }
     },
 
@@ -61,18 +63,34 @@ export default {
         type: 'changeLoginStatus',
         payload: {
           status: false,
-          currentAuthority: 'guest',
+          currentAuthority: undefined,
         },
       });
+      
+      var href=window.location.href;
+      var index=-1;
+      if((index=href.indexOf('redirect'))>0){
+        href=href.substr(0,index-1);
+      }
       reloadAuthorized();
-      yield put(
-        routerRedux.push({
-          pathname: '/user/login',
-          search: stringify({
-            redirect: window.location.href,
-          }),
-        })
-      );
+      if(href.indexOf('/user/login')>0){
+        yield put(
+          routerRedux.push({
+            pathname: '/user/login',
+            search: stringify({}),
+          })
+        );
+      }else{
+        yield put(
+          routerRedux.push({
+            pathname: '/user/login',
+            search: stringify({
+              redirect: href,
+            }),
+          })
+        );
+      } 
+      
     },
   },
 

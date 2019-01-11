@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi/locale';
 import Link from 'umi/link';
-import { Checkbox, Alert, Icon } from 'antd';
+import { Checkbox, Alert, Icon , message } from 'antd';
 import Login from '@/components/Login';
 import styles from './Login.less';
+
 
 const { Tab, UserName, Password, Mobile, Captcha, CaptchaImg,Submit } = Login;
 
@@ -64,7 +65,7 @@ class LoginPage extends Component {
     const {userName} =values;
     if (!err) {
       const { dispatch } = this.props;
-      const captcha_id = localStorage.getItem('captcha_id');
+      const captcha_id = sessionStorage.getItem('captcha_id');
       dispatch({
         type: 'login/login',
         payload: {
@@ -72,6 +73,9 @@ class LoginPage extends Component {
           type,
           captcha_id,
         },
+        callback:(response)=>{
+           message.error(response.message);
+        }
       });
     }
   };

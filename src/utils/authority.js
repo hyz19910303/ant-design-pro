@@ -2,7 +2,7 @@
 export function getAuthority(str) {
   // return localStorage.getItem('antd-pro-authority') || ['admin', 'user'];
   const authorityString =
-    typeof str === 'undefined' ? sessionStorage.getItem('userAuthority') : str;
+    typeof str === 'undefined' ? localStorage.getItem('userAuthority') : str;
   // authorityString could be admin, "admin", ["admin"]
   let authority;
   try {
@@ -18,12 +18,12 @@ export function getAuthority(str) {
 
 export function setAuthority(authority) {
   const proAuthority = typeof authority === 'string' ? [authority] : authority;
-  return sessionStorage.setItem('userAuthority', JSON.stringify(proAuthority));
+  return localStorage.setItem('userAuthority', JSON.stringify(proAuthority));
 }
 
 export function removeAuthority(authority){
   const key = typeof authority === 'userAuthority' ? 'userAuthority': authority;
-  sessionStorage.removeItem(key);
+  localStorage.removeItem(key);
 }
 
 ///获取访问路径下所需的凭证

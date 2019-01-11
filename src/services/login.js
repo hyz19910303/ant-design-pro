@@ -3,7 +3,7 @@ import request from '@/utils/request';
 
 export async function getFakeCaptchaImg() {
   var stmp=new Date().getTime()
-  return request('/api/security/captcha');
+  return request('/api/security/captcha?_='+stmp);
 }
 
 

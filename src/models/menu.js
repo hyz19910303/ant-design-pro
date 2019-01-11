@@ -98,12 +98,13 @@ export default {
 
   effects: {
     *getMenuData({ payload }, { call,put }) {
-      const {  authority } = payload;
-      const response=yield call(getMenuTreeData);
-     //  debugger
+      const {  authority,routes } = payload;
+      const response=yield call(getMenuTreeData);     
       const res=memoizeOneFormatter(response, authority)
-     
+      //const res=memoizeOneFormatter(routes, authority)
+      //console.log(JSON.stringify(routes));
       const menuData = filterMenuData(res);
+      
        global.menuData=menuData
       const breadcrumbNameMap = memoizeOneGetBreadcrumbNameMap(menuData);
       yield put({
