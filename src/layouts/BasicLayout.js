@@ -57,7 +57,7 @@ class BasicLayout extends React.PureComponent {
     this.matchParamsPath = memoizeOne(this.matchParamsPath, isEqual);
   }
 
-  componentDidMount() {
+  componentWillMount(){
     const {
       dispatch,
       route: { routes, authority },
@@ -70,6 +70,21 @@ class BasicLayout extends React.PureComponent {
         _ : new Date().getTime()
       },
     });
+  }
+
+  componentDidMount() {
+    const {
+      dispatch,
+      route: { routes, authority },
+    } = this.props;
+    // dispatch({
+    //   type: 'menu/getMenuData',
+    //   payload: { 
+    //     routes, 
+    //     authority,
+    //     _ : new Date().getTime()
+    //   },
+    // });
     dispatch({
       type: 'user/fetchCurrent',
     });

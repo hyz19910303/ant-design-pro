@@ -62,7 +62,11 @@ class LoginPage extends Component {
 
   handleSubmit = (err, values) => {
     const { type } = this.state;
-    const {userName} =values;
+    const {username, mobile} =values;
+    if(mobile){
+      values.username=mobile
+      delete values.mobile;
+    }
     if (!err) {
       const { dispatch } = this.props;
       const captcha_id = sessionStorage.getItem('captcha_id');
@@ -165,11 +169,22 @@ class LoginPage extends Component {
                 },
               ]}
             />
-            <Captcha
+            <Password
+              name="password"
+              placeholder={`${formatMessage({ id: 'app.login.password' })}`}
+              rules={[
+                {
+                  required: true,
+                  message: formatMessage({ id: 'validation.password.required' }),
+                },
+              ]}
+              onPressEnter={() => this.loginForm.validateFields(this.handleSubmit)}
+            />
+            <CaptchaImg
               name="captcha"
               placeholder={formatMessage({ id: 'form.verification-code.placeholder' })}
-              countDown={120}
-              onGetCaptcha={this.onGetCaptcha}
+              onGetCaptcha={this.onGetCaptchaImg}
+              src={captchaSrc?("data:image/png;base64,"+captchaSrc):''}
               getCaptchaButtonText={formatMessage({ id: 'form.get-captcha' })}
               getCaptchaSecondText={formatMessage({ id: 'form.captcha.second' })}
               rules={[

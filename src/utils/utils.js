@@ -54,6 +54,7 @@ export function getTimeDistance(type) {
 
 export function getPlainNode(nodeList, parentPath = '') {
   const arr = [];
+  debugger
   nodeList.forEach(node => {
     const item = node;
     item.path = `${parentPath}/${item.path || ''}`.replace(/\/+/g, '/');
@@ -119,6 +120,7 @@ export function getRoutes(path, routerData) {
   // Get the route to be rendered to remove the deep rendering
   const renderArr = getRenderArr(routes);
   // Conversion and stitching parameters
+  debugger
   const renderRoutes = renderArr.map(item => {
     const exact = !routes.some(route => route !== item && getRelation(route, item) === 1);
     return {

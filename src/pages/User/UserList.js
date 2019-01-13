@@ -626,7 +626,7 @@ class UserList extends PureComponent {
       route: { routes },
       loading,
     } = this.props;
-    
+    debugger
     const { selectedRows, modalVisible, updateModalVisible, 
       userFormValues,assignModalVisible,roleList,confirmLoading,assignRoles} = this.state;
     const menu = (
