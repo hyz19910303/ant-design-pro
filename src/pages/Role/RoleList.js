@@ -107,9 +107,10 @@ const AssignMenuForm = Form.create()(props => {
   const treeSelectProp={
     multiple:true,//多选
     treeCheckable:true,//展示复选框
-    showCheckedStrategy:TreeSelect.SHOW_CHILD ,//展示策略
+    showCheckedStrategy:TreeSelect.SHOW_ALL ,//展示策略 SHOW_ALL SHOW_PARENT SHOW_CHILD
     treeDefaultExpandAll:false,
     treeDataSimpleMode:false,
+    maxTagCount:3,
     style:{width:'100%'},
     //value:assignMenus,
   };
