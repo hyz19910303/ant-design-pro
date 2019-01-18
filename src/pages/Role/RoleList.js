@@ -111,6 +111,7 @@ const AssignMenuForm = Form.create()(props => {
     treeDefaultExpandAll:false,
     treeDataSimpleMode:false,
     maxTagCount:3,
+    //treeCheckStrictly:true,
     style:{width:'100%'},
     //value:assignMenus,
   };
@@ -124,7 +125,7 @@ const AssignMenuForm = Form.create()(props => {
       confirmLoading={confirmLoading}
       onCancel={() => handleAssignMenuModalVisible()}
     >
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="角色名称">
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="已分配列表">
         {form.getFieldDecorator('id', {
           rules: [{ required: true, message: '请输入2-20个字符！' }],
           initialValue: assignMenus,

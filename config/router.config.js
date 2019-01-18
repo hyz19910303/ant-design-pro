@@ -34,15 +34,15 @@ export default[
         icon: 'home',
         name: 'systemManager',
         routes: [{
-            path: '/system/role/rolelist',
+            path: '/system/role/list',
             name: 'rolelist',
             component: './Role/RoleList',
           }, {
-            path: '/system/user/userlist',
+            path: '/system/user/list',
             name: 'userlist',
             component: './User/UserList',
           }, {
-            path: '/system/menu/menulist',
+            path: '/system/menu/list',
             name: 'menulist',
             component: './Menu/MenuList',
           },

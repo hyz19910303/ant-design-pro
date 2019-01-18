@@ -96,6 +96,7 @@ export default {
 
   reducers: {
     changeLoginStatus(state, { payload }) {
+      localStorage.removeItem("token");
       setAuthority(payload.currentAuthority);
       return {
         ...state,

@@ -138,11 +138,12 @@ class BasicLayout extends React.PureComponent {
     if (!currRouterData) {
       return '管理系统';
     }
-    const pageName = formatMessage({
-      id: currRouterData.locale || currRouterData.name,
-      defaultMessage: currRouterData.name,
-    });
-
+    //取消国际化
+    // const pageName = formatMessage({
+    //   id: currRouterData.locale || currRouterData.name,
+    //   defaultMessage: currRouterData.name,
+    // });
+    const pageName=currRouterData.name;
     return `${pageName} - 管理系统`;
   };
 

@@ -17,7 +17,7 @@ export async function queryUserList(params) {
 	pageSize=params['pageSize'];
 	pageNum=params['pageNum'];
   }
-  return request(`/api/security/user/list?${stringify(params)}`,{
+  return request(`/api/security/system/user/list?${stringify(params)}`,{
   	method:'POST',
   	body:{
   		pageSize,
@@ -29,7 +29,7 @@ export async function queryUserList(params) {
 
 
 export async function addUser(params) {
-  return request('/api/security/user/add',{
+  return request('/api/security/system/user/add',{
     method:'POST',
     body:{
       ...params
@@ -39,13 +39,13 @@ export async function addUser(params) {
 
 export async function deleteUser(params) {
   const {record} =params
-  return request(`/api/security/user/delete/${record.id}`,{
+  return request(`/api/security/system/user/delete/${record.id}`,{
     method:'POST'
   });
 }
 
 export async function updateUser(params) {
-  return request('/api/security/user/update/',{
+  return request('/api/security/system/user/update/',{
     method:'POST',
     body:{
       ...params
@@ -59,14 +59,14 @@ export async function queryUserRolesDetail(params) {
   selectedRows.map(item=>{
     userids.push(item.id);
   });
-  return request(`/api/security/user/assignRoles?ids=${userids.join(',')}`,{
+  return request(`/api/security/system/user/assignRoles?ids=${userids.join(',')}`,{
     method:'POST',
   });
 }
 //分配角色
 export async function allignRoles(params) {
   const {userids,roleids} =params;
-  return request(`/api/security/userRefRole/assignRole/?userids=${userids.join(',')}&roleids=${roleids.join(',')}`,{
+  return request(`/api/security/system/userRefRole/assignRole/?userids=${userids.join(',')}&roleids=${roleids.join(',')}`,{
     method:'POST',
   });
 }

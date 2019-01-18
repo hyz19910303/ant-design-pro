@@ -14,11 +14,11 @@ export async function queryMenuTreeList(params) {
 	pageSize=params['pageSize'];
 	pageNum=params['pageNum'];
   }
-  return request('/api/security/menu/tree/list');
+  return request('/api/security/system/menu/tree/list');
 }
 
 export async function addMenu(params) {
-  return request('/api/security/menu/add',{
+  return request('/api/security/system/menu/add',{
     method:'POST',
     body:{
       ...params
@@ -28,13 +28,13 @@ export async function addMenu(params) {
 
 export async function deleteMenu(params) {
   const {record} =params
-  return request(`/api/security/menu/delete/${record.id}`,{
+  return request(`/api/security/system/menu/delete/${record.id}`,{
     method:'POST'
   });
 }
 
 export async function updateMenu(params) {
-  return request('/api/security/menu/update/',{
+  return request('/api/security/system/menu/update/',{
     method:'POST',
     body:{
       ...params

@@ -160,9 +160,10 @@ export default function request(url, option) {
     })
     .then(response =>{
       if(response.code==401){
-        window.g_app._store.dispatch({
-          type: 'login/logout',
-        });
+        // window.g_app._store.dispatch({
+        //   type: 'login/logout',
+        // });
+        router.push('/exception/403');
         return;
       }
       return response;

@@ -3,7 +3,7 @@ import request from '@/utils/request';
 
 
 export async function queryRoleList(params) {
-  return request('/api/security/role/list',{
+  return request('/api/security/system/role/list',{
   	method:'POST',
   });
 }
@@ -15,13 +15,13 @@ export async function queryRolePageList(params) {
     pageSize=params['pageSize'];
     pageNum=params['pageNum'];
   }
-  return request(`/api/security/role/page/list?${stringify(params)}`,{
+  return request(`/api/security/system/role/list?${stringify(params)}`,{
     method:'POST',
   });
 }
 
 export async function addRole(params) {
-  return request('/api/security/role/add',{
+  return request('/api/security/system/role/add',{
     method:'POST',
     body:{
       ...params
@@ -31,13 +31,13 @@ export async function addRole(params) {
 
 export async function deleteRole(params) {
   const {record} =params
-  return request(`/api/security/role/delete/${record.id}`,{
+  return request(`/api/security/system/role/delete/${record.id}`,{
     method:'POST'
   });
 }
 
 export async function updateRole(params) {
-  return request('/api/security/role/update/',{
+  return request('/api/security/system/role/update/',{
     method:'POST',
     body:{
       ...params
@@ -51,14 +51,14 @@ export async function queryRoleMenusDetail(params) {
   selectedRows.map(item=>{
     userids.push(item.id);
   });
-  return request(`/api/security/role/assignMenus/?ids=${userids.join(',')}`,{
+  return request(`/api/security/system/role/assignMenus/?ids=${userids.join(',')}`,{
     method:'POST',
   });
 }
 
 export async function assignRoleMenus(params) {
   const { menuids,roleids} =params;
-  return request(`/api/security/roleRefMenu/assignMenus?menuids=${menuids.join(',')}&roleids=${roleids.join(',')}`,{
+  return request(`/api/security/system/roleRefMenu/assignMenus?menuids=${menuids.join(',')}&roleids=${roleids.join(',')}`,{
     method:'POST',
   });
 }
