@@ -159,12 +159,14 @@ export default function request(url, option) {
       return response.json();
     })
     .then(response =>{
-      if(response.code==401){
-        // window.g_app._store.dispatch({
-        //   type: 'login/logout',
-        // });
+      if(response.code==403){
         router.push('/exception/403');
         return;
+      }else if(response.code==401){
+        window.g_app._store.dispatch({
+          type: 'login/logout',
+        });
+        return 
       }
       return response;
     })

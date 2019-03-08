@@ -81,7 +81,7 @@ class StandardTable extends PureComponent {
     };
 
     return (
-      <div className={styles.standardTable}>
+      <div className={styles.standardTable} >
         <div className={styles.tableAlert}>
           <Alert
             message={
@@ -106,6 +106,7 @@ class StandardTable extends PureComponent {
           />
         </div>
         <Table
+          
           rowKey={rowKey || 'id'}
           rowSelection={rowSelection}
           dataSource={list}

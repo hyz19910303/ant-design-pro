@@ -13,13 +13,19 @@ function formatter(data, parentAuthority, parentName) {
       if (!item.name || !item.path) {
         return null;
       }
-
+      //面包屑去i18n
       let locale = 'menu';
       if (parentName) {
-        locale = `${parentName}.${item.name}`;
+        locale = `${item.name}`;
       } else {
-        locale = `menu.${item.name}`;
+        locale = `${item.name}`;
       }
+      // let locale = 'menu';
+      // if (parentName) {
+      //   locale = `${parentName}.${item.name}`;
+      // } else {
+      //   locale = `menu.${item.name}`;
+      // }
 
       const result = {
         ...item,

@@ -56,7 +56,7 @@ class GeographicView extends PureComponent {
       );
     }
     return list.map(item => (
-      <Option key={item.id} value={item.id}>
+      <Option key={item.code} value={item.code}>
         {item.name}
       </Option>
     ));

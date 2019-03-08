@@ -5,8 +5,19 @@ export async function query() {
   return request('/api/users');
 }
 
-export async function queryCurrent() {
-  return request('/api/currentUser');
+export async function queryCurrent(token) {
+  return request('/api/security/currentUser',{
+    method:'POST'
+  });
+}
+
+export async function saveBaseInfo(payload) {
+  return request('/api/security/updateBaseInfo',{
+    method:'POST',
+    body:{
+      ...payload,
+    }
+  });
 }
 
 ////////////////////////////
@@ -67,6 +78,19 @@ export async function queryUserRolesDetail(params) {
 export async function allignRoles(params) {
   const {userids,roleids} =params;
   return request(`/api/security/system/userRefRole/assignRole/?userids=${userids.join(',')}&roleids=${roleids.join(',')}`,{
+    method:'POST',
+  });
+}
+//获取用户绑定机构
+export async function queryUserOrgan(userid) {
+  return request(`/api/security/system/user/extra/organ/${userid}`,{
+    method:'POST',
+  });
+}
+//绑定机构
+export async function bingUserOrgan(paylaod) {
+  const { id,userid} =paylaod;
+  return request(`/api/security/system/user/extra//binding/organ?org_id=${id}&userid=${userid}`,{
     method:'POST',
   });
 }

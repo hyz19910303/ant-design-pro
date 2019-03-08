@@ -8,6 +8,7 @@ import {
   Form,
   Input,
   Select,
+  TreeSelect,
   Icon,
   Button,
   Dropdown,
@@ -24,7 +25,7 @@ import {
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import Authorized from '@/utils/Authorized';
-
+import listDataConvertSelectTreeData from '@/utils/treeUtil';
 import styles from './UserList.less';
 
 const FormItem = Form.Item;
@@ -114,7 +115,6 @@ const AssignRoleForm = Form.create()(props => {
       handelAssignRoles(fieldsValue);
     });
   };
-  //debugger
   return (
     <Modal
       destroyOnClose
@@ -144,6 +144,53 @@ const AssignRoleForm = Form.create()(props => {
     </Modal>
   );
 });
+// 绑定机构model
+const BindingOrganForm = Form.create()(props => {
+  const { bindingOrganVisible, form,confirmLoading,handleBingingOrganModalVisible,
+    bindingOrgan,allOrgans,handleBindingUserOrgan} = props;
+  const TreeNode = TreeSelect.TreeNode
+  let isUpdate=false;
+  const okHandle = () => {
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      handleBindingUserOrgan(fieldsValue)
+    });
+  };
+  //debugger
+  const treeSelectProp={
+    multiple:false,//多选
+    treeCheckable:false,//展示复选框
+    showCheckedStrategy:TreeSelect.SHOW_CHILD ,//展示策略 SHOW_ALL SHOW_PARENT SHOW_CHILD
+    treeDefaultExpandAll:false,
+    treeDataSimpleMode:false,
+    maxTagCount:3,
+    //treeCheckStrictly:true,
+    style:{width:'100%'},
+    //value:assignMenus,
+  };
+
+  return (
+    <Modal
+      destroyOnClose
+      title={'绑定机构'}
+      width={640}
+      visible={bindingOrganVisible}
+      onOk={okHandle}
+      confirmLoading={confirmLoading}
+      onCancel={()=>handleBingingOrganModalVisible()}
+    >
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="已绑定机构">
+        {form.getFieldDecorator('id', {
+          rules: [{ required: true, message: '请选择机构！' }],
+          initialValue: bindingOrgan,
+        })(<TreeSelect treeData={allOrgans} {...treeSelectProp} placeholder="请选择..." />
+        )}
+        </FormItem>
+    </Modal>
+  );
+});
+
+
 /* eslint react/no-multi-comp:0 */
 @connect(({ userlist, loading }) => ({
   userlist,
@@ -163,6 +210,9 @@ class UserList extends PureComponent {
     roleList:[],//角色列表
     confirmLoading:false,//弹出框加载
     assignRoles:[],//已分配角色列表
+    bindingOrganVisible:false,//绑定机构model是否可见
+    bindingOrgan:undefined,
+    allOrgans:[],
   };
 
   columns = [
@@ -271,24 +321,77 @@ class UserList extends PureComponent {
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
 
-    if (!selectedRows) return;
+    if (!selectedRows || selectedRows.length >1 ){
+      message.warn("请选择要绑定的用户，最多选一个");
+      return;
+    } 
+
     switch (e.key) {
-      case 'remove':
-        dispatch({
-          type: 'userlist/remove',
-          payload: {
-            key: selectedRows.map(row => row.key),
-          },
-          callback: () => {
-            this.setState({
-              selectedRows: [],
-            });
-          },
-        });
+      case 'organ':
+        this.handleBingingOrganModalVisible(true);
         break;
       default:
         break;
     }
+  }
+
+  handleBingingOrganModalVisible=(flag)=>{
+    const { selectedRows } = this.state;
+
+    this.setState({
+        bindingOrganVisible: !!flag,
+    });
+    const { bindingOrgan,allOrgans } =this.state;
+    if(flag && (!allOrgans || allOrgans.length <1 )){
+      const { dispatch } = this.props;
+      dispatch(
+        {
+          type: 'userlist/userorgan',
+          payload: {
+            selectedRows:selectedRows
+        },
+        callback:(response)=>{
+          if(response.success){
+            const bindrgan=response.data.bindingOrgan;
+            let allOrgans=response.data.allOrgans;
+            let organs=[allOrgans];
+            listDataConvertSelectTreeData(organs,'org_name');
+            this.setState(
+              {
+                bindingOrgan:bindrgan?bindrgan['key']:bindrgan,
+                allOrgans:organs,
+              }
+            );
+          }else{
+            message.error(response.message);
+          }
+        }
+      });
+    }
+  }
+
+  handleBindingUserOrgan=(values)=>{
+    const { dispatch} = this.props;
+    const { selectedRows } = this.state;
+    this.changeConfirmLoadState(true);
+    dispatch({
+      type: 'userlist/bindOrgan',
+      payload: {
+        ...values,
+        userid:selectedRows[0]['id']
+      },
+      callback:(response)=>{
+        this.changeConfirmLoadState();
+        this.handleBingingOrganModalVisible();
+        if(response.success){
+          this.setState({
+            bindingOrgan:values['id'],
+          });
+        }else{
+          message.error('绑定失败:'+response.message);
+        }
+      }
+    });
   }
 
   handleSelectRows = rows => {
@@ -468,6 +571,7 @@ class UserList extends PureComponent {
     }
   }
 
+
   handelAssignRoles=(fieldsValue)=>{
     const { selectedRows} =this.state;
     let userids=[];
@@ -626,12 +730,13 @@ class UserList extends PureComponent {
       route: { routes },
       loading,
     } = this.props;
-    debugger
+    
     const { selectedRows, modalVisible, updateModalVisible, 
-      userFormValues,assignModalVisible,roleList,confirmLoading,assignRoles} = this.state;
+      userFormValues,assignModalVisible,roleList,confirmLoading,
+      assignRoles,bindingOrganVisible,bindingOrgan,allOrgans} = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
-        <Menu.Item key="remove">删除</Menu.Item>
+        <Menu.Item key="organ">绑定机构</Menu.Item>
         <Menu.Item key="approval">批量审批</Menu.Item>
       </Menu>
     );
@@ -652,10 +757,16 @@ class UserList extends PureComponent {
       confirmLoading:confirmLoading,
       assignRoles:assignRoles,
     }
-    // const updateMethods = {
-    //   handleUpdateModalVisible: this.handleUpdateModalVisible,
-    //   handleUpdate: this.handleUpdate,
-    // };
+    const bindingOrganModelStates={
+      bindingOrganVisible:bindingOrganVisible,
+      confirmLoading:confirmLoading,
+      handleBingingOrganModalVisible:this.handleBingingOrganModalVisible,
+      bindingOrgan:bindingOrgan,
+      allOrgans:allOrgans,
+      handleBindingUserOrgan:this.handleBindingUserOrgan,
+    }
+    
+
     return (
       <PageHeaderWrapper title="用户列表">
         <Card bordered={false}>
@@ -677,6 +788,7 @@ class UserList extends PureComponent {
               )}
             </div>
             <StandardTable
+              style={{"overflowX":"scroll"}}
               selectedRows={selectedRows}
               loading={loading}
               data={data}
@@ -688,6 +800,7 @@ class UserList extends PureComponent {
         </Card>
         <CreateForm {...parentMethods} modalVisible={modalVisible} userFormValues={userFormValues} />
         <AssignRoleForm {...assignRoleModelParentMethods} {...assignRoleModelParentStates} />
+        <BindingOrganForm {...bindingOrganModelStates}/>
       </PageHeaderWrapper>
     );
   }

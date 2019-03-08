@@ -24,7 +24,7 @@ import {
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
-
+import listDataConvertSelectTreeData from '@/utils/treeUtil';
 import styles from './RoleList.less';
 
 const FormItem = Form.Item;
@@ -427,7 +427,7 @@ class RoleList extends PureComponent {
             //   return item;
             // });
             
-            this.listDataConvertSelectTreeData([treeMenus]);
+            listDataConvertSelectTreeData([treeMenus],'menu_name');
             
             const assignMenus=data.AssignMenus;
             this.setState({
@@ -448,19 +448,7 @@ class RoleList extends PureComponent {
     }
   }
 
-  listDataConvertSelectTreeData=(list)=>{    
-    
-    for(var i=0;i<list.length;i++){
-      let item=list[i];
-      item.title=item.menu_name;
-      item.key=item.id;
-      item.value=item.id;
-      if(item.children){
-        this.listDataConvertSelectTreeData(item.children);
-      }
-      
-    }
-  }
+  
 
   handleAssignRoleMenus=(menuids)=>{
      const { dispatch } = this.props;
@@ -588,6 +576,7 @@ class RoleList extends PureComponent {
               )}
             </div>
             <StandardTable
+              style={{"overflowX":"scroll"}}
               selectedRows={selectedRows}
               loading={loading}
               data={data}

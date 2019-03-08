@@ -25,7 +25,7 @@ import StandardTable from '@/components/StandardTable';
 import StandardTreeTable from '@/components/StandardTreeTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 
-import styles from './MenuList.less';
+import styles from './OrganList.less';
 
 const FormItem = Form.Item;
 const { Step } = Steps;
@@ -65,7 +65,7 @@ const CreateForm = Form.create()(props => {
   if(radioVal==='0'){
     radioVal=roleFormValues.menu_type?roleFormValues.menu_type:radioVal;
   } 
-  const title=(isUpdate?"编辑":"新建")+"菜单"
+  const title=(isUpdate?"编辑":"新建")+"机构"
   const formLayout = {
     labelCol: { span: 5 },
     wrapperCol: { span: 16 },
@@ -81,60 +81,35 @@ const CreateForm = Form.create()(props => {
       confirmLoading={confirmLoading}
       onCancel={() => handleModalVisible()}
     > 
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 16 }} label="菜单类型">
-        {form.getFieldDecorator('menu_type',{
-          valuePropName:'menu_type',
-          initialValue:radioVal,
-          }
-        )
-        (<RadioGroup name='menu_type' value={radioVal} onChange={(v)=>radioSeleted(v)} >
-              <Radio value={'0'}>目录</Radio>
-              <Radio value={'1'}>菜单</Radio>
-              <Radio value={'2'}>按钮</Radio>
-        </RadioGroup>)}
-      </FormItem>
-      <FormItem {...formLayout} label="菜单名称">
-        {form.getFieldDecorator('menu_name', {
-          rules: [{ required: true, message: '请输入2-20个字符！', min: 2,max:20 }],
-          initialValue: roleFormValues.menu_name,
-        })(<Input  placeholder="请输入菜单名称" />)}
+      <FormItem {...formLayout} label="名称">
+        {form.getFieldDecorator('org_name', {
+          rules: [{ required: true, message: '请输入2-20个字符！', min: 2,max:60 }],
+          initialValue: roleFormValues.org_name,
+        })(<Input  placeholder="请输入机构名称" />)}
         </FormItem>
-      <FormItem {...formLayout} label="菜单代码">
-        {form.getFieldDecorator('menu_code', {
-          rules: [{ required: true, message: '菜单代码长度在3-20位！', min: 3,max:20 }],
-          initialValue: roleFormValues.menu_code,
-        })(<Input  type='number' placeholder="请输入菜单代码" />)}
+      <FormItem {...formLayout} label="代码">
+        {form.getFieldDecorator('org_code', {
+          rules: [{ required: true, message: '机构代码长度在3-20位！', min: 3,max:60 }],
+          initialValue: roleFormValues.org_code,
+        })(<Input   placeholder="请输入机构代码" />)}
       </FormItem>
-      <FormItem {...formLayout}  label="URL">
-        {form.getFieldDecorator('menu_url', {
-          rules: [{ required: true, message: 'url不能为空！'}],
-          initialValue: roleFormValues.menu_url,
-        })(<Input placeholder="请输入url" />)}
-      </FormItem>
-      {radioVal!=='2'?
-      (<FormItem {...formLayout} label="菜单图标">
-        {form.getFieldDecorator('menu_icon', {
-          rules: [{ message: '请输入至少两个字符的描述！', min: 2 }],
-          initialValue: roleFormValues.menu_icon,
-        })(<Input  placeholder="请参考antd的icon" />)}
-      </FormItem>):null}
-      <FormItem {...formLayout} label="描述">
-        {form.getFieldDecorator('description', {
-          rules: [{ message: '请输入至少两个字符的描述！', min: 2 }],
-          initialValue: roleFormValues.description,
-        })(<TextArea rows={2} placeholder="请输入至少两个字符" />)}
+      <FormItem {...formLayout}  label="别称">
+        {form.getFieldDecorator('org_remark', {
+          rules: [{ required: true, message: '请输入别称'}],
+          initialValue: roleFormValues.org_remark,
+        })(<Input placeholder="请输入别称" />)}
       </FormItem>
     </Modal>
   );
 });
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ menulist, loading }) => ({
-  menulist,
-  loading: loading.models.menulist,
+@connect(({ organlist, loading }) => ({
+  organlist,
+  loading: loading.models.organlist,
 }))
 @Form.create()
-class MenuList extends PureComponent {
+class OrganList extends PureComponent {
   state = {
     modalVisible: false,
     expandForm: false,
@@ -148,40 +123,24 @@ class MenuList extends PureComponent {
 
   columns = [    
     {
-      title: '菜单名称',
-      dataIndex: 'menu_name',
+      title: '机构名称',
+      dataIndex: 'org_name',
       // width:'200px',
       align:'left',
     },
     {
-      title: '菜单代码',
-      dataIndex: 'menu_code',
+      title: '机构代码',
+      dataIndex: 'org_code',
       align:'center',
     },
     {
-      title: 'URL',
-      dataIndex: 'menu_url',
-      align:'center',
-    },
-    {
-      title:'图标',
-      dataIndex:'menu_icon',
-      align:'center',
-    },
-    {
-      title: '菜单类型',
-      dataIndex: 'menu_type',
+      title: '机构类型',
+      dataIndex: 'type_code',
       align:'center',
     },
     {
       title:'排序号',
       dataIndex:'order_no'
-    },
-    {
-      title:'描述',
-      dataIndex:'description',
-      // width:'200px',
-      align:'center',
     },
     {
       title: '操作',
@@ -203,7 +162,7 @@ class MenuList extends PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'menulist/fetch',
+      type: 'organlist/fetch',
     });
   }
 
@@ -233,7 +192,7 @@ class MenuList extends PureComponent {
     }
 
     dispatch({
-      type: 'menulist/fetch',
+      type: 'organlist/fetch',
       payload: params,
     });
   }
@@ -245,7 +204,7 @@ class MenuList extends PureComponent {
       formValues: {},
     });
     dispatch({
-      type: 'menulist/fetch',
+      type: 'organlist/fetch',
       payload: {},
     });
   }
@@ -265,7 +224,7 @@ class MenuList extends PureComponent {
     switch (e.key) {
       case 'remove':
         dispatch({
-          type: 'menulist/remove',
+          type: 'organlist/remove',
           payload: {
             key: selectedRows.map(row => row.key),
           },
@@ -305,7 +264,7 @@ class MenuList extends PureComponent {
       });
 
       dispatch({
-        type: 'menulist/fetch',
+        type: 'organlist/fetch',
         payload: values,
       });
     });
@@ -331,8 +290,8 @@ class MenuList extends PureComponent {
 
   handleDeleteRecord=(record,index)=>{
     Modal.confirm({
-      title: '删除菜单',
-      content: '确定删除该菜单吗？',
+      title: '删除机构',
+      content: '确定删除该机构吗？',
       okText: '确认',
       cancelText: '取消',
       onOk: () => this.handleDelete(record,index),
@@ -361,14 +320,14 @@ class MenuList extends PureComponent {
     const { dispatch} = this.props;
     this.changeConfirmLoadState(true);
     dispatch({
-      type:'menulist/delete',
+      type:'organlist/delete',
       payload:{
         record
       },
       callback:(response)=>{
         this.changeConfirmLoadState();
         if(response.success){
-          let listData=this.props.menulist;
+          let listData=this.props.organlist;
           let parentNode=this.queryParentNode(listData.data.list,record.pid);
           for(var i=0;i<parentNode.children.length;i++){
             if(parentNode.children[i].id===record.id){
@@ -389,7 +348,7 @@ class MenuList extends PureComponent {
     const { dispatch,form } = this.props;
     this.changeConfirmLoadState(true);
     dispatch({
-      type: 'menulist/add',
+      type: 'organlist/add',
       payload: {
         ...fields
       },
@@ -399,7 +358,7 @@ class MenuList extends PureComponent {
           form.resetFields();
           message.success('添加成功');
           this.handleModalVisible();
-          const data=this.props.menulist.data;;
+          const data=this.props.organlist.data;;
           let datalist=data.list;
           let record=response.data;
           let parentNode=this.queryParentNode(datalist,record.pid);
@@ -428,7 +387,7 @@ class MenuList extends PureComponent {
     const { updateRowIndex}=this.state;
     this.changeConfirmLoadState(true);
     dispatch({
-      type: 'menulist/update',
+      type: 'organlist/update',
       payload: {
         ...fields
       },
@@ -437,7 +396,7 @@ class MenuList extends PureComponent {
         if(response.success){
           message.success('修改成功');
           this.handleModalVisible();
-          const data=this.props.menulist.data;;
+          const data=this.props.organlist.data;;
           let datalist=data.list;
           let record=response.data;
           let parentNode=this.queryParentNode(datalist,record.pid);
@@ -499,7 +458,7 @@ class MenuList extends PureComponent {
 
   render() {
     const {
-      menulist: { data },
+      organlist: { data },
       loading,
     } = this.props;
     const { selectedRows, modalVisible, roleFormValues,pid,radioVal,confirmLoading} = this.state;
@@ -515,7 +474,7 @@ class MenuList extends PureComponent {
       roleFormValues:roleFormValues,
     };
     return (
-      <PageHeaderWrapper title="菜单列表">
+      <PageHeaderWrapper title="机构列表">
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
@@ -536,4 +495,4 @@ class MenuList extends PureComponent {
   }
 }
 
-export default MenuList;
+export default OrganList;

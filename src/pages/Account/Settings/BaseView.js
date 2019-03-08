@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { formatMessage, FormattedMessage } from 'umi/locale';
-import { Form, Input, Upload, Select, Button } from 'antd';
+import { Form, Input, Upload, Select, Button,TreeSelect,message  } from 'antd';
 import { connect } from 'dva';
 import styles from './BaseView.less';
 import GeographicView from './GeographicView';
@@ -30,23 +30,33 @@ const AvatarView = ({ avatar }) => (
 );
 
 const validatorGeographic = (rule, value, callback) => {
+  if(!value){
+    callback("请选择省市");
+    callback();
+    return;
+  }
   const { province, city } = value;
   if (!province.key) {
-    callback('Please input your province!');
+    callback('请选择所在省!');
   }
   if (!city.key) {
-    callback('Please input your city!');
+    callback('请选择所在市!');
   }
   callback();
 };
 
 const validatorPhone = (rule, value, callback) => {
-  const values = value.split('-');
-  if (!values[0]) {
-    callback('Please input your area code!');
+  let values 
+  if(!value){
+    callback('请输入电话号码!');
+  }else{
+    values=value.split('-');
   }
-  if (!values[1]) {
-    callback('Please input your phone number!');
+  if (values && !values[0]) {
+    callback('请输入电话区号!');
+  }
+  if (values && !values[1]) {
+    callback('请输入电话号码!');
   }
   callback();
 };
@@ -56,6 +66,11 @@ const validatorPhone = (rule, value, callback) => {
 }))
 @Form.create()
 class BaseView extends Component {
+  
+  state={
+    loading:false,
+  }
+
   componentDidMount() {
     this.setBaseInfo();
   }
@@ -78,6 +93,31 @@ class BaseView extends Component {
     return url;
   }
 
+  handleSubmit=e=>{
+    const { dispatch, form ,currentUser} = this.props;
+
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      this.setState({
+        loading: true,
+      });  
+      dispatch({
+        type: 'user/updateBaseInfo',
+        payload: fieldsValue,
+        callback:(response)=>{
+          this.setState({
+            loading: false,
+          });  
+          if(response.success){
+            message.success('更新成功');
+          }else{
+            message.error('更新失败');
+          }
+        }
+      });
+    });
+  }
+
   getViewDom = ref => {
     this.view = ref;
   };
@@ -86,10 +126,17 @@ class BaseView extends Component {
     const {
       form: { getFieldDecorator },
     } = this.props;
+    const {loading} = this.state;
     return (
       <div className={styles.baseView} ref={this.getViewDom}>
         <div className={styles.left}>
-          <Form layout="vertical" onSubmit={this.handleSubmit} hideRequiredMark>
+          <Form layout="vertical"  >
+            <FormItem >
+              {getFieldDecorator('id', {
+                rules: [
+                ],
+              })(<Input type="hidden" disabled={true} />)}
+            </FormItem>
             <FormItem label={formatMessage({ id: 'app.settings.basic.email' })}>
               {getFieldDecorator('email', {
                 rules: [
@@ -98,23 +145,34 @@ class BaseView extends Component {
                     message: formatMessage({ id: 'app.settings.basic.email-message' }, {}),
                   },
                 ],
-              })(<Input />)}
+              })(<Input disabled={true} />)}
             </FormItem>
-            <FormItem label={formatMessage({ id: 'app.settings.basic.nickname' })}>
-              {getFieldDecorator('name', {
+            <FormItem label={'账号'}>
+              {getFieldDecorator('user_name', {
                 rules: [
                   {
                     required: true,
                     message: formatMessage({ id: 'app.settings.basic.nickname-message' }, {}),
                   },
                 ],
-              })(<Input />)}
+              })(<Input disabled={true} />)}
+            </FormItem>
+            <FormItem label={'真实姓名'}>
+              {getFieldDecorator('real_name', {
+                rules: [
+                  {
+                    required: true,
+                    message: '请填写真实姓名',
+                  },
+                ],
+              })(<Input disabled={true} />)}
             </FormItem>
             <FormItem label={formatMessage({ id: 'app.settings.basic.profile' })}>
               {getFieldDecorator('profile', {
                 rules: [
                   {
-                    required: true,
+                    required: false,
+                    max: 20,
                     message: formatMessage({ id: 'app.settings.basic.profile-message' }, {}),
                   },
                 ],
@@ -125,14 +183,44 @@ class BaseView extends Component {
                 />
               )}
             </FormItem>
+            <FormItem label={"个人签名"}>
+              {getFieldDecorator('signature', {
+                rules: [
+                  {
+                    required: false,
+                    max: 20,
+                    message: '请输入个人签名（最多20个字）',
+                  },
+                ],
+              })(
+                <Input.TextArea
+                  placeholder={'请输入个人签名（最多20个字）'}
+                  rows={4}
+                />
+              )}
+            </FormItem>
+            <FormItem label={'所属机构'}>
+              {getFieldDecorator('organ', {
+                rules: [
+                  {
+                    required: false,
+                    max: 20,
+                    message: '请选择机构',
+                  },
+                ],
+              })(
+                <Input disabled={true} />
+              )}
+            </FormItem>
             <FormItem label={formatMessage({ id: 'app.settings.basic.country' })}>
-              {getFieldDecorator('country', {
+              {getFieldDecorator('countryCode', {
                 rules: [
                   {
                     required: true,
                     message: formatMessage({ id: 'app.settings.basic.country-message' }, {}),
                   },
                 ],
+                initialValue: 'China',
               })(
                 <Select style={{ maxWidth: 220 }}>
                   <Option value="China">中国</Option>
@@ -163,7 +251,7 @@ class BaseView extends Component {
               })(<Input />)}
             </FormItem>
             <FormItem label={formatMessage({ id: 'app.settings.basic.phone' })}>
-              {getFieldDecorator('phone', {
+              {getFieldDecorator('telphone', {
                 rules: [
                   {
                     required: true,
@@ -173,7 +261,7 @@ class BaseView extends Component {
                 ],
               })(<PhoneView />)}
             </FormItem>
-            <Button type="primary">
+            <Button type="primary" loading={loading} onClick={this.handleSubmit}>
               <FormattedMessage
                 id="app.settings.basic.update"
                 defaultMessage="Update Information"

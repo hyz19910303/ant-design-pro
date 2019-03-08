@@ -1,4 +1,5 @@
-import { queryUserList,addUser,deleteUser,updateUser,queryUserRolesDetail,allignRoles } from '@/services/user';
+import { queryUserList,addUser,deleteUser,updateUser,queryUserRolesDetail,
+  allignRoles,queryUserOrgan,bingUserOrgan } from '@/services/user';
 export default {
   namespace: 'userlist',
 
@@ -71,6 +72,18 @@ export default {
     *assignRoles({ payload, callback }, { call, put }){
       const response = yield call(allignRoles, payload);
       if (callback) callback(response);
+    },
+    //获取用户相关的机构信息
+    *userorgan({ payload, callback }, { call, put }){
+      const { selectedRows } =payload;
+      const userid=selectedRows[0]['id'];
+      const response = yield call(queryUserOrgan, userid);
+      if (callback) callback(response);
+    },
+    //绑定机构
+    *bindOrgan({ payload, callback }, { call, put }){
+      const response =yield call(bingUserOrgan,payload);
+      if(callback) callback(response);
     }
   },
 
