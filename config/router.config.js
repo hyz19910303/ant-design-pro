@@ -51,6 +51,11 @@ export default[
             name: 'organlist',
             component: './Organ/OrganList',
           },
+          {
+            path: '/system/message/list',
+            name: 'messagelist',
+            component: './Message/MessageList',
+          },
         ]
       }, {
         path: '/demo',

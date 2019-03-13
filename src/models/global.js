@@ -1,4 +1,5 @@
-import { queryNotices } from '@/services/api';
+// import { queryNotices } from '@/services/api';
+import { queryNotices,changeNoticeReadState,cleanNotices } from '@/services/user';
 
 export default {
   namespace: 'global',
@@ -10,7 +11,11 @@ export default {
 
   effects: {
     *fetchNotices(_, { call, put, select }) {
-      const data = yield call(queryNotices);
+      const response = yield call(queryNotices);
+      let data=[];
+      if(response.success){
+         data=response.data;
+      }
       yield put({
         type: 'saveNotices',
         payload: data,
@@ -26,7 +31,15 @@ export default {
         },
       });
     },
-    *clearNotices({ payload }, { put, select }) {
+    *clearNotices({ payload }, {call ,put, select }) {
+      const {list,type} =payload;
+      
+      let messageids=[];
+      list.map(item=>{
+        messageids.push(item.id);
+        return item;
+      });
+      yield call(cleanNotices,messageids);
       yield put({
         type: 'saveClearedNotices',
         payload,
@@ -43,7 +56,11 @@ export default {
         },
       });
     },
-    *changeNoticeReadState({ payload }, { put, select }) {
+    *changeNoticeReadState({ payload }, {call, put, select }) {
+      const response=yield call(changeNoticeReadState,payload);
+      if(!response.success){
+        return state.notices;
+      }
       const notices = yield select(state =>
         state.global.notices.map(item => {
           const notice = { ...item };
@@ -81,9 +98,10 @@ export default {
       };
     },
     saveClearedNotices(state, { payload }) {
+      
       return {
         ...state,
-        notices: state.notices.filter(item => item.type !== payload),
+        notices: state.notices.filter(item => item.type !== payload.type),
       };
     },
   },

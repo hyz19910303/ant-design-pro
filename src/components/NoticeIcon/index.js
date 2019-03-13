@@ -38,9 +38,9 @@ export default class NoticeIcon extends PureComponent {
     }
   };
 
-  onClear = name => {
-    const { onClear, clearClose } = this.props;
-    onClear(name);
+  onClear = (list,name) => {
+    const { onClear, clearClose } = this.props;    
+    onClear(list,name);
     if (clearClose) {
       this.popover.click();
     }
@@ -67,7 +67,7 @@ export default class NoticeIcon extends PureComponent {
             {...child.props}
             data={list}
             onClick={item => this.onItemClick(item, child.props)}
-            onClear={() => this.onClear(name)}
+            onClear={() => this.onClear(list,name)}
             title={title}
             locale={locale}
           />

@@ -41,7 +41,7 @@ class HeaderView extends PureComponent {
     return collapsed ? 'calc(100% - 80px)' : 'calc(100% - 256px)';
   };
 
-  handleNoticeClear = type => {
+  handleNoticeClear = (list,type) => {
     message.success(
       `${formatMessage({ id: 'component.noticeIcon.cleared' })} ${formatMessage({
         id: `component.globalHeader.${type}`,
@@ -50,7 +50,10 @@ class HeaderView extends PureComponent {
     const { dispatch } = this.props;
     dispatch({
       type: 'global/clearNotices',
-      payload: type,
+      payload: {
+        list:list,
+        type:type,
+      },
     });
   };
 

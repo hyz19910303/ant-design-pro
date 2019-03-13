@@ -111,7 +111,7 @@ class BaseView extends Component {
           if(response.success){
             message.success('更新成功');
           }else{
-            message.error('更新失败');
+            message.error('更新失败:'+response.message);
           }
         }
       });
@@ -131,8 +131,14 @@ class BaseView extends Component {
       <div className={styles.baseView} ref={this.getViewDom}>
         <div className={styles.left}>
           <Form layout="vertical"  >
-            <FormItem >
+            <FormItem  style={{"display":"none"}}>
               {getFieldDecorator('id', {
+                rules: [
+                ],
+              })(<Input type="hidden" disabled={true} />)}
+            </FormItem>
+            <FormItem style={{"display":"none"}}>
+              {getFieldDecorator('userid', {
                 rules: [
                 ],
               })(<Input type="hidden" disabled={true} />)}

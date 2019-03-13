@@ -94,3 +94,21 @@ export async function bingUserOrgan(paylaod) {
     method:'POST',
   });
 }
+// 获取通知消息
+export async function queryNotices(paylaod){
+   return request(`/api/security/notices`,{
+    method:'POST',
+  });
+}
+//设置已读
+export async function changeNoticeReadState(paylaod){
+   return request(`/api/security/cleanNotices?msg_ids=${paylaod}`,{
+    method:'POST',
+  });
+}
+//情况消息
+export async function cleanNotices(messageids){
+   return request(`/api/security/cleanNotices?msg_ids=${messageids.join(',')}`,{
+    method:'POST',
+  });
+}

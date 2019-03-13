@@ -56,7 +56,7 @@ export default class GlobalHeaderRight extends PureComponent {
 
   changeReadState = clickedItem => {
     const { id } = clickedItem;
-    const { dispatch } = this.props;
+    const { dispatch } = this.props;    
     dispatch({
       type: 'global/changeNoticeReadState',
       payload: id,

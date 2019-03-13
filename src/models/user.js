@@ -24,15 +24,18 @@ export default {
       });
     },
     *updateBaseInfo({payload,callback},{call,put}){
-      const{id, geographic : {city}, geographic:{ province },...rest} = payload;
-      const userinfo={
-        id:id,
+      const{id,userid, geographic : {city}, geographic:{ province },...rest} = payload;
+      let userinfo={
+        userid:userid,
         cityCode:city.key,
         cityName:city.label,
         provinceCode:province.key,
         provinceName:province.label,
         ...rest,
       };
+      if(id){
+        userinfo.id=id;
+      }
       const response = yield call(saveBaseInfo,userinfo);
       if(callback){
           callback(response);
