@@ -45,8 +45,8 @@ class MessageList extends PureComponent {
     done: false,
     rolelist:[],
     targets:[],
-    radioVal:'message',
-    stateRadioVal:'todo',
+    msgTypeVal:'message',
+    msgStateVal:'todo',
     confirmLoading:false,
     initLoading:true,
     loading: false,
@@ -165,17 +165,17 @@ class MessageList extends PureComponent {
     });
   };
 
-  radioSeleted=(radio)=>{
+  changeMsgType=(val,option)=>{
     //radio.preventDefault;
     this.setState({
-      radioVal:radio.target.value
+      msgTypeVal:val
     });
   }
 
-  stateRadioSeleted=(radio)=>{
+  changeMsgState=(val,option)=>{
     //radio.preventDefault;
     this.setState({
-      stateRadioVal:radio.target.value
+      msgStateVal:val
     });
   }
 
@@ -210,7 +210,7 @@ class MessageList extends PureComponent {
       form: { getFieldDecorator },
     } = this.props;
     const { visible, done, current = {},rolelist,targets,confirmLoading,initLoading } = this.state;
-    let {radioVal,stateRadioVal}= this.state;
+    let {msgTypeVal,msgStateVal}= this.state;
     const editAndDelete = (key, currentItem,index) => {
       if (key === 'edit') this.showEditModal(currentItem);
       else if (key === 'delete') {
@@ -311,29 +311,34 @@ class MessageList extends PureComponent {
       }
       
       if(current.msg_type){
-        radioVal=current.msg_type;
+        msgTypeVal=current.msg_type;
       }
-      stateRadioVal=current.state?current.state:stateRadioVal;
+      msgStateVal=current.state?current.state:msgStateVal;
       return (
         <Form onSubmit={this.handleSubmit}>
           <FormItem label="类型" {...this.formLayout}>
             {getFieldDecorator('msg_type', {
               valuePropName:'msg_type',
-            })(<RadioGroup name='msg_type'  value={radioVal} onChange={(v)=>this.radioSeleted(v)} >
-              <Radio value={'message'}>消息</Radio>
-              <Radio value={'notification'}>通知</Radio>
-              <Radio value={'event'}>事件</Radio>
-            </RadioGroup>)}
+            })(
+              <Select defaultValue={msgTypeVal} onChange={(val,option)=>this.changeMsgType(val,option)} placeholder="请选择">
+                <Select.Option key='message' value='message'>消息</Select.Option>
+                <Select.Option key='notification' value='notification'>通知</Select.Option>
+                <Select.Option key='event' value='event'>事件</Select.Option>
+              </Select>
+            )}
           </FormItem>
-          {radioVal=='event'?(
+          {msgTypeVal=='event'?(
             <FormItem label="状态" {...this.formLayout}>
             {getFieldDecorator('state', {
+              rules: [{ required: true, message: '请选择' }],
               valuePropName:'state',
-            })(<RadioGroup name='state'  value={stateRadioVal} onChange={(v)=>this.stateRadioSeleted(v)} >
-              <Radio value={'urgent'}>紧急</Radio>
-              <Radio value={'todo'}>待办</Radio>
-              <Radio value={'doing'}>进行中</Radio>
-            </RadioGroup>)}
+            })(
+              <Select defaultValue={msgStateVal} onChange={(val,option)=>this.changeMsgState(val,option)} placeholder="请选择">
+                <Select.Option key='urgent' value='urgent'>紧急</Select.Option>
+                <Select.Option key='todo' value='todo'>待办</Select.Option>
+                <Select.Option key='doing' value='doing'>紧急</Select.Option>
+              </Select>
+            )}
           </FormItem>
           ):null}
           <FormItem label="消息标题" {...this.formLayout}>
@@ -362,7 +367,7 @@ class MessageList extends PureComponent {
               </Select>
             )}
           </FormItem>
-          {radioVal=='event'?(
+          {msgTypeVal=='event'?(
             <FormItem {...this.formLayout} label="状态描述">
             {getFieldDecorator('extra', {
               rules: [{required: true, message: '请输入不超过六个字符的描述！', max: 6 }],
