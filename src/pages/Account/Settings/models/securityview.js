@@ -5,7 +5,9 @@ export default {
 
   state: {
     confirmLoading: false,
-    userSecurityInfo:{},
+    phono_number:"未绑定" ,
+    email:"未绑定",
+    passwordStatus:"weak",
   },
 
   effects: {
@@ -21,11 +23,14 @@ export default {
         type: 'changeLoading',
         payload: true,
       });
-
       const response = yield call(updatePassword,payload);
       if(callback){
         callback(response);
       }
+      yield put({
+        type:'updatePasswordStatus',
+        payload:response.data,
+      });
       yield put({
         type: 'changeLoading',
         payload: false,
@@ -41,6 +46,10 @@ export default {
         callback(response);
       }
       yield put({
+        type: 'updateEmailStatus',
+        payload: payload,
+      });
+      yield put({
         type: 'changeLoading',
         payload: false,
       });
@@ -54,6 +63,10 @@ export default {
       if(callback){
         callback(response);
       }
+      yield put({
+        type: 'updatePhonoNoStatus',
+        payload: payload,
+      });
       yield put({
         type: 'changeLoading',
         payload: false,
@@ -71,7 +84,25 @@ export default {
     updateUserInfo(state, action){
       return {
           ...state,
-          userSecurityInfo:action.payload,
+          ...action.payload,
+      };
+    },
+    updatePasswordStatus(state, action){
+      return {
+          ...state,
+         passwordStatus:action.payload
+      };
+    },
+    updatePhonoNoStatus(state, action){
+      return {
+          ...state,
+         phono_number:action.payload.phono_number
+      };
+    },
+    updateEmailStatus(state, action){
+      return {
+          ...state,
+         email:action.payload.email
       };
     }
   },

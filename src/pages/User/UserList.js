@@ -250,7 +250,7 @@ class UserList extends PureComponent {
       render: (text, record,index) => (
         <Fragment>
           <Authorized authority={'user'} noMatch={
-            <Button disabled size="small" onClick={() => this.handleUpdateModalVisible(true, record,index)}>
+            <Button  size="small" onClick={() => this.handleUpdateModalVisible(true, record,index)}>
               <Icon type="edit" theme="twoTone" />
             </Button>
           } >
@@ -260,7 +260,7 @@ class UserList extends PureComponent {
           </Authorized>
           
           <Divider type="vertical" />
-          <Button icon="user-delete" type='danger' size="small" onClick={() => this.handleDeleteRecord(record,index)}/>
+          <Button disabled icon="user-delete" type='danger' size="small" onClick={() => this.handleDeleteRecord(record,index)}/>
         </Fragment>
       ),
     },
@@ -788,7 +788,6 @@ class UserList extends PureComponent {
               )}
             </div>
             <StandardTable
-              style={{"overflowX":"scroll"}}
               selectedRows={selectedRows}
               loading={loading}
               data={data}

@@ -17,9 +17,8 @@ export default {
       const response = yield call(queryMessagePageList, payload);
       let result={};
       if(response.success){
-        let list=response.data.content;
-        result.list=list;
-        result.data=list;
+        let data=response.data.content;
+        result.data=data;
         let number=response.data.number+1;
         result.pageNum=number;
         // let total=response.data.totalElements
@@ -58,14 +57,15 @@ export default {
     save(state, action) {
       const data=action.payload.data;
       let pageNum=action.payload.pageNum;
-      if(data.length>=state.pageSize){
-          pageNum++;
+      let list=state.list;
+      if(data.length>0){
+        pageNum++;
+        list = list.concat(data);
       }
-      const list = state.list.concat(data);
       return {
         ...state,
-        data: data,
         list:list,
+        data:data,
         pageNum:pageNum,
       };
     },

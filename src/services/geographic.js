@@ -1,13 +1,9 @@
 import request from '@/utils/request';
 
 export async function queryProvince() {
-  return request('/api/security/geographic/province',{
-  	method:'POST'
-  });
+  return request('/api/geographic/province');
 }
 
 export async function queryCity(province) {
-  return request(`/api/security/geographic/city/${province}`,{
-  	method:'POST'
-  });
+  return request(`/api/geographic/city/${province}`);
 }

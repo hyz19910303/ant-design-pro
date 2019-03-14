@@ -479,7 +479,6 @@ class OrganList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <StandardTreeTable
-              style={{"overflowX":"scroll"}}
               indentSize={8}
               loading={loading}
               data={data}

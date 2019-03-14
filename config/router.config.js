@@ -33,15 +33,18 @@ export default[
         path: '/system',
         icon: 'home',
         name: 'systemManager',
-        routes: [{
+        routes: [
+          {
             path: '/system/role/list',
             name: 'rolelist',
             component: './Role/RoleList',
-          }, {
+          }, 
+          {
             path: '/system/user/list',
             name: 'userlist',
             component: './User/UserList',
-          }, {
+          }, 
+          {
             path: '/system/menu/list',
             name: 'menulist',
             component: './Menu/MenuList',

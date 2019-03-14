@@ -1,6 +1,7 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import moment from 'moment';
+import router from 'umi/router';
 import {
   Row,
   Col,
@@ -292,6 +293,7 @@ class TableList extends PureComponent {
     {
       title: '规则名称',
       dataIndex: 'name',
+      render: text => <a onClick={() => this.previewItem(text)}>{text}</a>,
     },
     {
       title: '描述',
@@ -301,7 +303,6 @@ class TableList extends PureComponent {
       title: '服务调用次数',
       dataIndex: 'callNo',
       sorter: true,
-      align: 'right',
       render: val => `${val} 万`,
       // mark to display a total number
       needTotal: true,
@@ -382,6 +383,10 @@ class TableList extends PureComponent {
     });
   };
 
+  previewItem = id => {
+    router.push(`/profile/basic/${id}`);
+  };
+
   handleFormReset = () => {
     const { form, dispatch } = this.props;
     form.resetFields();
@@ -405,7 +410,7 @@ class TableList extends PureComponent {
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
 
-    if (!selectedRows) return;
+    if (selectedRows.length === 0) return;
     switch (e.key) {
       case 'remove':
         dispatch({
@@ -483,12 +488,16 @@ class TableList extends PureComponent {
 
   handleUpdate = fields => {
     const { dispatch } = this.props;
+    const { formValues } = this.state;
     dispatch({
       type: 'rule/update',
       payload: {
-        name: fields.name,
-        desc: fields.desc,
-        key: fields.key,
+        query: formValues,
+        body: {
+          name: fields.name,
+          desc: fields.desc,
+          key: fields.key,
+        },
       },
     });
 
@@ -594,7 +603,7 @@ class TableList extends PureComponent {
           </Col>
         </Row>
         <div style={{ overflow: 'hidden' }}>
-          <div style={{ float: 'right', marginBottom: 24 }}>
+          <div style={{ marginBottom: 24 }}>
             <Button type="primary" htmlType="submit">
               查询
             </Button>

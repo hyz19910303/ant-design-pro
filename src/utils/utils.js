@@ -54,7 +54,6 @@ export function getTimeDistance(type) {
 
 export function getPlainNode(nodeList, parentPath = '') {
   const arr = [];
-  
   nodeList.forEach(node => {
     const item = node;
     item.path = `${parentPath}/${item.path || ''}`.replace(/\/+/g, '/');
@@ -120,7 +119,6 @@ export function getRoutes(path, routerData) {
   // Get the route to be rendered to remove the deep rendering
   const renderArr = getRenderArr(routes);
   // Conversion and stitching parameters
-  debugger
   const renderRoutes = renderArr.map(item => {
     const exact = !routes.some(route => route !== item && getRelation(route, item) === 1);
     return {
@@ -183,3 +181,14 @@ export function formatWan(val) {
 export function isAntdPro() {
   return window.location.hostname === 'preview.pro.ant.design';
 }
+
+export const importCDN = (url, name) =>
+  new Promise(resolve => {
+    const dom = document.createElement('script');
+    dom.src = url;
+    dom.type = 'text/javascript';
+    dom.onload = () => {
+      resolve(window[name]);
+    };
+    document.head.appendChild(dom);
+  });

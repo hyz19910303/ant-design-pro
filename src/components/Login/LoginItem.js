@@ -120,7 +120,6 @@ class WrapFormItem extends Component {
       );
     }else if(type === 'CaptchaImg'){
        const inputProps = omit(otherProps, ['onGetCaptcha', 'countDown']);
-       
        return (
         <FormItem>
           <Row gutter={8}>
@@ -135,7 +134,6 @@ class WrapFormItem extends Component {
                 src={src}
                 onClick={this.onGetCaptcha}
               >
-               
               </img>
             </Col>
           </Row>

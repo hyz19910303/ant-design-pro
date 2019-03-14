@@ -43,9 +43,12 @@ export async function updateMessage(params) {
 }
 
 export async function sendMessage(payload) {
-  const { id} =payload;
-  delete payload.id;
-  return request(`/api/security/user/message/send?targets=${id}&type=2`,{
+  const { targets,id} =payload;
+  if(!id){
+    delete payload.id;
+  }
+  delete payload.targets;
+  return request(`/api/security/user/message/send?targets=${targets.join(',')}&type=2`,{
     method:'POST',
     body:{
       ...payload,

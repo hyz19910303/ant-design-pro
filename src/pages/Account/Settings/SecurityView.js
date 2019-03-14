@@ -189,19 +189,15 @@ class SecurityView extends PureComponent {
   ////////////////////////////////////
 
   getUserSecurityInfoData =()=>{
-      const {securityview:{userSecurityInfo}} = this.props;
-      let phono_number="未绑定" ,email="未绑定";
-      if(userSecurityInfo){
-         phono_number=userSecurityInfo.phono_number
-         email=userSecurityInfo.email
-      }
+      const {securityview:{phono_number,email,passwordStatus}} = this.props;
+      const ok=passwordStrength[passwordStatus];
       const data= [
           {
             title: formatMessage({ id: 'app.settings.security.password' }, {}),
             description: (
               <Fragment>
                 {formatMessage({ id: 'app.settings.security.password-description' })}
-                {passwordStrength.weak}
+                : {passwordStrength[passwordStatus]}
               </Fragment>
             ),
             actions: [
@@ -215,7 +211,7 @@ class SecurityView extends PureComponent {
             description: `${formatMessage(
               { id: 'app.settings.security.phone-description' },
               {}
-            )} ${phono_number}`,
+            )} : ${phono_number}`,
             actions: [
               <a onClick={this.handlePhonoModalVisible}>
                 <FormattedMessage id="app.settings.security.modify" defaultMessage="Modify" />
@@ -227,7 +223,7 @@ class SecurityView extends PureComponent {
             description: `${formatMessage(
               { id: 'app.settings.security.email-description' },
               {}
-            )} ${email}`,
+            )} : ${email}`,
             actions: [
               <a  onClick={this.handleEmailModalVisible}>
                 <FormattedMessage id="app.settings.security.modify" defaultMessage="Modify" />

@@ -8,7 +8,7 @@ export default {
       size: 'large',
       id: 'userName',
       prefix: <Icon type="user" className={styles.prefixIcon} />,
-      placeholder: '请输入用户名',
+      placeholder: 'admin',
     },
     rules: [
       {
@@ -23,7 +23,7 @@ export default {
       prefix: <Icon type="lock" className={styles.prefixIcon} />,
       type: 'password',
       id: 'password',
-      placeholder: '请输入密码',
+      placeholder: '888888',
     },
     rules: [
       {

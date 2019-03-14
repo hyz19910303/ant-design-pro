@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi/locale';
 import Link from 'umi/link';
 import router from 'umi/router';
-import { Form, Input, Button, Select, Row, Col, Popover, Progress } from 'antd';
+import {Alert, Form, Input, Button, Select, Row, Col, Popover, Progress,message } from 'antd';
 import styles from './Register.less';
 
 const FormItem = Form.Item;
@@ -51,7 +51,6 @@ class Register extends Component {
   componentDidUpdate() {
     const { form, register } = this.props;
     const account = form.getFieldValue('email');
-    
     if (register.status) {
       router.push({
         pathname: '/user/register-result',
@@ -102,6 +101,11 @@ class Register extends Component {
             ...values,
             prefix,
           },
+          callback:response=>{
+            if(!response.success){
+              message.error(response.message);
+            }
+          }
         });
       }
     });
@@ -158,7 +162,7 @@ class Register extends Component {
   };
 
   renderPasswordProgress = () => {
-    const { form } = this.props;
+    const { form} = this.props;
     const value = form.getFieldValue('password');
     const passwordStatus = this.getPasswordStatus();
     return value && value.length ? (
@@ -175,7 +179,7 @@ class Register extends Component {
   };
 
   render() {
-    const { form, submitting } = this.props;
+    const { form, submitting} = this.props;
     const { getFieldDecorator } = form;
     const { count, prefix, help, visible } = this.state;
     return (

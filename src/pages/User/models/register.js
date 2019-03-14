@@ -7,11 +7,13 @@ export default {
 
   state: {
     status: undefined,
+    message:'',
   },
 
   effects: {
-    *submit({ payload }, { call, put }) {
+    *submit({ payload,callback }, { call, put }) {
       const response = yield call(fakeRegister, payload);
+      if(callback) callback(response);
       yield put({
         type: 'registerHandle',
         payload: response,
@@ -23,10 +25,10 @@ export default {
     registerHandle(state, { payload }) {
       //setAuthority('user');
       //reloadAuthorized();
-      
       return {
         ...state,
         status: payload.success,
+        message:payload.message,
       };
     },
   },

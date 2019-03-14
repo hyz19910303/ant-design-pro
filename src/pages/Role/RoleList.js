@@ -576,7 +576,6 @@ class RoleList extends PureComponent {
               )}
             </div>
             <StandardTable
-              style={{"overflowX":"scroll"}}
               selectedRows={selectedRows}
               loading={loading}
               data={data}
