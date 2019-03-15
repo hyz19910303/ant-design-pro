@@ -106,13 +106,15 @@ export default {
   effects: {
     *getMenuData({ payload }, { call,put }) {
       const {  authority,routes } = payload;
-      const response=yield call(getMenuTreeData);     
-      const res=memoizeOneFormatter(response, authority)
-      //const res=memoizeOneFormatter(routes, authority)
-      //console.log(JSON.stringify(routes));
+      // 调用后台
+      // const response=yield call(getMenuTreeData);     
+      // const res=memoizeOneFormatter(response, authority)
+      //模拟数据
+      const res=memoizeOneFormatter(routes, authority)
+      
       const menuData = filterMenuData(res);
       
-       global.menuData=menuData
+      global.menuData=menuData
       const breadcrumbNameMap = memoizeOneGetBreadcrumbNameMap(menuData);
       yield put({
         type: 'save',

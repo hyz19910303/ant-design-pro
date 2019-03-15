@@ -29,7 +29,20 @@ export default[
       {
         path: '/',
         redirect: '/demo/dashboard/analysis'
-      }, {
+      }, 
+      {
+        path: '/business',
+        icon: 'plus',
+        name: 'business',
+        routes: [
+          {
+            path: '/business/disease/list',
+            name: 'disease',
+            component: './Business/DiseaseAnalysis/DiseaseAnalysis',
+          }, 
+        ]
+      },
+      {
         path: '/system',
         icon: 'home',
         name: 'systemManager',
