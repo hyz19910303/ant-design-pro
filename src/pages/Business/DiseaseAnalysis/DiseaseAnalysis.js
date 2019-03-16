@@ -4,46 +4,42 @@ import { Row, Col, Icon, Menu, Dropdown } from 'antd';
 import GridContent from '@/components/PageHeaderWrapper/GridContent';
 import { getTimeDistance } from '@/utils/utils';
 import PageLoading from '@/components/PageLoading';
+import { BarLine } from '@/components/Business';
 
 // import { BaseBox, TextBox, ChartBox } from '@/components/Business/Box';
 // import {  BaseLine, BasePie, Bar, RingPie, MultiLine } from '@/components/Business/Chart';
 // import SearchBar from '../Homepage/SearchBar';
 import styles from './DiseaseAnalysis.less';
-const DiseaseCard = React.lazy(() => import('./DiseaseCard'));
+const ContentCard = React.lazy(() => import('./ContentCard'));
 
 // @connect(state => ({
 //   supplier: state.diseaseAnalysisModel,
 // }))
 @connect(({ diseaseAnalysisModel, loading }) => ({
   diseaseAnalysisModel,
-  loading: loading.models.diseaseAnalysisModel
+  loading: loading.models.diseaseAnalysisModel,
 }))
 class DiseaseAnalysis extends Component {
-
   state = {
     salesType: 'all',
     currentTabKey: '',
     rangePickerValue: getTimeDistance('year'),
-
   };
 
   componentDidMount() {
-    
     const { dispatch } = this.props;
     dispatch({
-      type:'diseaseAnalysisModel/fetchSubAvgCostTrendAndRate',
-      payload:{
-        beginTime:2017,
+      type: 'diseaseAnalysisModel/fetchSubAvgCastData',
+      payload: {
+        beginTime: 2017,
         endTime: 2017,
         timeType: 4,
-        org_codes:'44488501443010511A1001'
-      }
+        org_codes: '44488501443010511A1001',
+      },
     });
   }
 
-  componentWillUnmount() {
-
-  }
+  componentWillUnmount() {}
 
   onSearch(params) {
     const { dispatch } = this.props;
@@ -73,61 +69,39 @@ class DiseaseAnalysis extends Component {
     });
   };
 
-  isActive = type => {
-    const { rangePickerValue } = this.state;
-    const value = getTimeDistance(type);
-    if (!rangePickerValue[0] || !rangePickerValue[1]) {
-      return '';
-    }
-    if (
-      rangePickerValue[0].isSame(value[0], 'day') &&
-      rangePickerValue[1].isSame(value[1], 'day')
-    ) {
-      return styles.currentDate;
-    }
-    return '';
+  changeTab = key => {
+    alert(key);
   };
 
   render() {
     const { diseaseAnalysisModel, loading } = this.props;
-    
-    const {
-      visitData,
-      visitData2,
-      salesData=[],
-      searchData,
-      offlineData,
-      offlineChartData,
-      salesTypeData,
-      salesTypeDataOnline,
-      salesTypeDataOffline,
-      rangePickerValue=[],
-      selectDate=[],
-      avgOutPatientEmergencyCost=[],
-    } = diseaseAnalysisModel;
 
-    
+    const { subAvgCastBarData = [] } = diseaseAnalysisModel;
+
+    const Bar = () => (
+      <BarLine
+        height={295}
+        title={'销售额度'}
+        data={subAvgCastBarData}
+        color={'bus_name'}
+        x={'bus_date'}
+        y={'bus_value'}
+        types={['intervalDodge']}
+      />
+    );
 
     return (
       <GridContent>
         <Suspense fallback={null}>
-          <DiseaseCard
-            rangePickerValue={rangePickerValue}
-            salesData={avgOutPatientEmergencyCost}
-            isActive={this.isActive}
-            loading={loading}
-            selectDate={this.selectDate}
-          />
+          <ContentCard loading={loading} onChange={key => this.changeTab(key)}>
+            <Bar title={'销售额'} />
+          </ContentCard>
+          <ContentCard loading={loading} onChange={key => this.changeTab(key)}>
+            <Bar title={'销售额'} key="goods" />
+            <Bar title={'进货价'} key="starf" />
+          </ContentCard>
         </Suspense>
-        <Suspense fallback={null}>
-          <DiseaseCard
-            rangePickerValue={rangePickerValue}
-            salesData={salesData}
-            isActive={this.isActive}
-            loading={loading}
-            selectDate={this.selectDate}
-          />
-        </Suspense>
+        <Suspense fallback={null} />
       </GridContent>
     );
   }
