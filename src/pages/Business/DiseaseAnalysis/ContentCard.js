@@ -8,11 +8,11 @@ import { BarLine } from '@/components/Business';
 const { RangePicker } = DatePicker;
 const { TabPane } = Tabs;
 
-const ContentCard = memo(({ loading, children, onChange, ...restProp }) => {
+const ContentCard = memo(({ loading, children, ...restProp }) => {
   return (
     <Card loading={loading} bordered={false} bodyStyle={{ padding: 0 }}>
       <div className={styles.salesCard}>
-        <Tabs size="large" tabBarStyle={{ marginBottom: 24 }} onChange={key => onChange(key)}>
+        <Tabs size="large" tabBarStyle={{ marginBottom: 24 }} {...restProp}>
           {Array.isArray(children) ? (
             children.map((item, index) => {
               const { key } = item;
