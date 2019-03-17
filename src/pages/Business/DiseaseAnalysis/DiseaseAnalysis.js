@@ -1,15 +1,17 @@
 import React, { Component, Suspense } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Icon, Menu, Dropdown } from 'antd';
+import { Row, Col, Icon, Menu, Dropdown,Card,  } from 'antd';
 import GridContent from '@/components/PageHeaderWrapper/GridContent';
+import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import { getTimeDistance } from '@/utils/utils';
 import PageLoading from '@/components/PageLoading';
 import { BarLine } from '@/components/Business';
 
-// import { BaseBox, TextBox, ChartBox } from '@/components/Business/Box';
-// import {  BaseLine, BasePie, Bar, RingPie, MultiLine } from '@/components/Business/Chart';
-// import SearchBar from '../Homepage/SearchBar';
+
+import SearchTool from '../SearchTool';
+
 import styles from './DiseaseAnalysis.less';
+
 const ContentCard = React.lazy(() => import('./ContentCard'));
 
 // @connect(state => ({
@@ -19,6 +21,7 @@ const ContentCard = React.lazy(() => import('./ContentCard'));
   diseaseAnalysisModel,
   loading: loading.models.diseaseAnalysisModel,
 }))
+
 class DiseaseAnalysis extends Component {
   state = {
     salesType: 'all',
@@ -70,8 +73,13 @@ class DiseaseAnalysis extends Component {
   };
 
   changeTab = key => {
-    alert(key);
+    console.log(key)
   };
+
+
+  
+
+  
 
   render() {
     const { diseaseAnalysisModel, loading } = this.props;
@@ -91,18 +99,21 @@ class DiseaseAnalysis extends Component {
     );
 
     return (
-      <GridContent>
-        <Suspense fallback={null}>
-          <ContentCard loading={loading} onChange={key => this.changeTab(key)}>
-            <Bar title={'销售额'} />
-          </ContentCard>
-          <ContentCard loading={loading} onChange={key => this.changeTab(key)}>
-            <Bar title={'销售额'} key="goods" />
-            <Bar title={'进货价'} key="starf" />
-          </ContentCard>
-        </Suspense>
-        <Suspense fallback={null} />
-      </GridContent>
+      <PageHeaderWrapper title="疾病分析">
+        <GridContent>
+          <SearchTool  />
+          <Suspense fallback={null}>
+            <ContentCard loading={loading} onChange={key => this.changeTab(key)}>
+              <Bar title={'销售额'} />
+            </ContentCard>
+            <ContentCard loading={loading} onChange={key => this.changeTab(key)}>
+              <Bar title={'销售额'} key="goods" />
+              <Bar title={'进货价'} key="starf" />
+            </ContentCard>
+          </Suspense>
+          <Suspense fallback={null} />
+        </GridContent>
+      </PageHeaderWrapper>
     );
   }
 }
